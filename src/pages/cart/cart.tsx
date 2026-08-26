@@ -1,0 +1,41 @@
+import Header from "../../components/header";
+import Footer from "../../components/footer";
+import CartTable from "./CartTable.tsx";
+import type Product from '../../types.ts';
+import Totalcart from "./cartTotal.tsx";
+interface ProductPageProps {
+    products: Product[];
+}
+
+
+function Cart({ products }: ProductPageProps) {
+    return (
+        <>
+            <div className="mx-1 md:mx-4 ">
+                <Header />
+                <div className="my-10 flex flex-col items-center text-center">
+
+                    <h1 className="animate-title bg-linear-to-r from-secondary via-text-secondary to-secondary bg-clip-text text-2xl font-bold tracking-[0.15rem] text-transparent md:text-4xl md:tracking-[0.3rem]">
+                        Votre panier
+                    </h1>
+
+                    <p className="mt-3 max-w-lg text-sm leading-6 text-text-secondary md:text-base">
+                        Découvrez les pièces que vous avez choisies
+                        et préparez votre commande.
+
+                    </p>
+
+                    <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
+
+                </div>
+                <div className="mx-auto my-10 grid max-w-7xl grid-cols-1 gap-8 px-4 md:grid-cols-[1fr_380px] lg:gap-12">
+                    <CartTable products={products} />
+                    <Totalcart />
+                </div>
+
+            </div>
+            <Footer />
+        </>
+    )
+}
+export default Cart

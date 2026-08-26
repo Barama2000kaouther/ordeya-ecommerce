@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-33.333333%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+
+@keyframes titleReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    letter-spacing: 0.8rem;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.5rem;
+  }
+}
+
+.animate-title {
+  animation: titleReveal 0.9s ease-out forwards;
+}
