@@ -1,17 +1,23 @@
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import Products from "../../components/products.tsx";
-import type Product from '../../types.ts';
+import type { Product } from '../../types';
 
 interface ProductPageProps {
     products: Product[];
+    userId?: string;
+    refreshWishlist: () => void;
+    wishlistCount: number;
+  
+
 }
 
-function WishList({ products }: ProductPageProps) {
+function WishList({ products, userId, refreshWishlist, wishlistCount }: ProductPageProps) {
+
     return (
         <>
             <div className="mx-1 md:mx-4 ">
-                <Header />
+                <Header wishlistCount={wishlistCount} />
                 <div className="my-10 flex flex-col items-center text-center">
                     <span className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#B099B5] md:text-sm">
                         ORDERYA
@@ -27,7 +33,7 @@ function WishList({ products }: ProductPageProps) {
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
-                <Products products={products} />
+                <Products products={products} userId={userId} refreshWishlist={refreshWishlist}  />
                 <br />
             </div>
             <Footer />

@@ -1,4 +1,23 @@
-function Totalcart() {
+import { useState } from "react";
+import { Link } from "react-router";
+import type { WilayaTarif } from "../../types";
+interface willayaProps {
+  willays: WilayaTarif[];
+  Total: React.RefObject<number>;
+}
+function Totalcart({ willays, Total }: willayaProps) {
+
+  const [wilaya, setWilaya] = useState('');
+  const [deleveryMode, setDeleveryMode] = useState('');
+  const selectedWilaya = willays.find(
+    (item) => item.wilaya === wilaya
+  );
+  const deliveryPrice =
+    deleveryMode === "home"
+      ? selectedWilaya?.home_delevery_classic ?? 0
+      : deleveryMode === "office"
+        ? selectedWilaya?.office_delevery_classique ?? 0
+        : 0;
   return (
     <section className="h-fit rounded-2xl bg-text-secondary p-6 md:p-7">
 
@@ -13,7 +32,7 @@ function Totalcart() {
         </span>
 
         <span className="text-sm font-medium text-text-3">
-          3800 DZ
+          {Total.current} DZ
         </span>
       </div>
 
@@ -25,29 +44,46 @@ function Totalcart() {
           </span>
 
           <span className="text-sm font-medium text-white">
-            300 DZ
+            {deliveryPrice} DZ
           </span>
         </div>
 
         <select
           id="wilaya"
           name="wilaya"
+          value={wilaya}
           className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition duration-200 hover:border-white/30 focus:border-secondary"
+          onChange={(e) => setWilaya(e.target.value)}
         >
           <option value="" className="text-text-secondary">
             Choisir une wilaya
           </option>
+          {
+            willays.map((wilaya) => {
+              return (<option key={wilaya.id} value={wilaya.wilaya} className="text-text-secondary">
+                {wilaya.wilaya}
+              </option>);
+            })
+          }
+        </select>
 
-          <option value="constantine" className="text-text-secondary">
-            Constantine
+        <select
+          id="delivery-type"
+          name="delivery-type"
+          value={deleveryMode}
+          className="w-full mt-3 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition duration-200 hover:border-white/30 focus:border-secondary"
+          onChange={(e) => setDeleveryMode(e.target.value)}
+        >
+          <option value="" className="text-text-secondary">
+            Choisir le mode de livraison
           </option>
 
-          <option value="mila" className="text-text-secondary">
-            Mila
+          <option value="home" className="text-black">
+            À domicile
           </option>
 
-          <option value="alger" className="text-text-secondary">
-            Alger
+          <option value="office" className="text-black">
+            Au bureau
           </option>
         </select>
       </div>
@@ -68,18 +104,19 @@ function Totalcart() {
         </div>
 
         <span className="text-2xl font-bold tracking-tight text-text-3">
-          4100 DZ
+          {Total.current + deliveryPrice} DZ
         </span>
       </div>
 
       {/* Button */}
-      <button
-        type="button"
-        className="mt-7 w-full rounded-lg bg-secondary px-5 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:opacity-90"
-      >
-        Acheter maintenant
-      </button>
-
+      <Link to='/checkout'>
+        <button
+          type="button"
+          className="mt-7 w-full rounded-lg bg-secondary px-5 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:opacity-90"
+        >
+          Acheter maintenant
+        </button>
+      </Link>
     </section>
   );
 }

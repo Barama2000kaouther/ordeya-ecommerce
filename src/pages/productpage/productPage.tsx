@@ -1,16 +1,20 @@
 import { useParams } from 'react-router';
-import type Product from '../../types';
+import type {Product} from '../../types';
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import Productdetail from './productdetail';
 interface ProductPageProps {
     products: Product[];
+    wishlistCount:number;
+     userId?: string;
+    refreshWishlist: () => void;
+    wishlist: Product[];
 }
 
-function ProductPage({ products }: ProductPageProps) {
+function ProductPage({ products ,wishlistCount,userId,refreshWishlist,wishlist}: ProductPageProps) {
     const { id } = useParams();
 
-    const productId = Number(id);
+    const productId =id;
 
     const product = products.find(
         (product) => product.id === productId
@@ -20,7 +24,7 @@ function ProductPage({ products }: ProductPageProps) {
     return (
         <>
             <div className="mx-1 md:mx-4 ">
-                <Header />
+                <Header wishlistCount={wishlistCount} />
                 <div className=" flex flex-col items-center text-center mt-5">
                     <span className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#B099B5] md:text-sm">
                         DÉTAIL DU PRODUIT
@@ -38,7 +42,7 @@ function ProductPage({ products }: ProductPageProps) {
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
                 {product && (
-                    <Productdetail product={product} />
+                    <Productdetail product={product} userId={userId} refreshWishlist={refreshWishlist} wishlist={wishlist}/>
                 )}
             </div>
 

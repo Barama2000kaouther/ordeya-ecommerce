@@ -11,7 +11,7 @@ const Hero = () => {
         <img
           src={heroimage}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover scale-110 blur-lg opacity-80"
+          className="absolute inset-0 h-full w-full object-cover scale-110 blur-xs opacity-60"
         />
 
       </div>
@@ -108,17 +108,17 @@ const Hero = () => {
           <div
             className="absolute h-80 w-80 rounded-full
                        border border-text-secondary
-                       md:h-112.5 md:w-112.5"
+                      lg:h-120 lg:w-120 md:h-100 md:w-100"
           />
 
           {/* Product */}
           <img
             src={hero}
             alt="Fashion product"
-            className="relative z-10 max-h-120 w-auto
+            className="relative z-10 lg:max-h-150 md:max-h-120 max-h-100 w-auto 
                        drop-shadow-[0_25px_35px_rgba(0,0,0,0.20)]
                        transition-transform duration-700
-                       hover:scale-105"
+                       hover:scale-115"
           />
         </div>
 

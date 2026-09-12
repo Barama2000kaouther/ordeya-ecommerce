@@ -1,19 +1,31 @@
-import type Product from "../types";
+import { useState } from 'react';
+import type { Product } from '../types';
 import heart from "../assets/icons/heart.svg";
+
 import cart from "../assets/icons/cart.svg";
 import { Link } from "react-router";
 
+import { handleclick } from '../utils';
+import { isProductInWishlist } from '../utils';
+
 interface ProductPageProps {
   products: Product[];
+  userId?: string;
+  refreshWishlist: () => void;
+  wishlist?: Product[];
 }
+function Products({ products, userId, refreshWishlist, wishlist }: ProductPageProps) {
+  const [message, setmessage] = useState('');
 
-function Products({ products }: ProductPageProps) {
+
   return (
-    <section className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((product) => (
-        <article
-          key={product.id}
-          className="
+    <>
+      <p className='text-red-700 text-center'>{message}</p>
+      <section className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-5 md:px-2">
+        {products.map((product) => (
+          <article
+            key={product.id}
+            className="
             group relative overflow-hidden
             rounded-3xl
             border border-[#EDE7EC]
@@ -24,13 +36,13 @@ function Products({ products }: ProductPageProps) {
             hover:border-[#56044F]/10
             hover:shadow-[0_20px_45px_rgba(86,4,79,0.12)]
           "
-        >
-          {/* ================= PRODUCT LINK ================= */}
-          <Link to={`/product/${product.id}`} className="block">
+          >
+            {/* ================= PRODUCT LINK ================= */}
+            <Link to={`/product/${product.id}`} className="block">
 
-            {/* ================= IMAGE ================= */}
-            <div
-              className="
+              {/* ================= IMAGE ================= */}
+              <div
+                className="
                 relative aspect-4/5
                 overflow-hidden
                 bg-linear-to-br
@@ -38,10 +50,10 @@ function Products({ products }: ProductPageProps) {
                 via-[#FAF7F9]
                 to-white
               "
-            >
-              {/* Decorative glow */}
-              <div
-                className="
+              >
+                {/* Decorative glow */}
+                <div
+                  className="
                   pointer-events-none
                   absolute -bottom-16 left-1/2
                   h-40 w-40 -translate-x-1/2
@@ -51,13 +63,13 @@ function Products({ products }: ProductPageProps) {
                   transition-all duration-700
                   group-hover:scale-150
                 "
-              />
+                />
 
-              {/* Product image */}
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="
+                {/* Product image */}
+                <img
+                  src={product.images[0].url}
+                  alt={product.name}
+                  className="
                   relative z-10
                   h-full w-full
                   object-cover
@@ -65,11 +77,11 @@ function Products({ products }: ProductPageProps) {
                   ease-out
                   group-hover:scale-[1.06]
                 "
-              />
+                />
 
-              {/* Bottom image gradient */}
-              <div
-                className="
+                {/* Bottom image gradient */}
+                <div
+                  className="
                   pointer-events-none
                   absolute inset-x-0 bottom-0 z-10
                   h-24
@@ -80,15 +92,15 @@ function Products({ products }: ProductPageProps) {
                   transition-opacity duration-500
                   group-hover:opacity-100
                 "
-              />
-            </div>
+                />
+              </div>
 
-            {/* ================= INFORMATION ================= */}
-            <div className="p-5 sm:p-6">
+              {/* ================= INFORMATION ================= */}
+              <div className="p-5 sm:p-6">
 
-              {/* Brand */}
-              <p
-                className="
+                {/* Brand */}
+                <p
+                  className="
                   mb-1
                   text-[11px]
                   font-bold
@@ -96,13 +108,13 @@ function Products({ products }: ProductPageProps) {
                   tracking-[0.18em]
                   text-text-secondary
                 "
-              >
-                {product.brand}
-              </p>
+                >
+                  {product.brand}
+                </p>
 
-              {/* Name */}
-              <h2
-                className="
+                {/* Name */}
+                <h2
+                  className="
                   mb-4
                   truncate
                   text-base
@@ -112,65 +124,66 @@ function Products({ products }: ProductPageProps) {
                   group-hover:text-text
                   sm:text-lg
                 "
-              >
-                {product.name}
-              </h2>
+                >
+                  {product.name}
+                </h2>
 
-              {/* Price */}
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-wider text-[#A397A3]">
-                    Price
-                  </span>
+                {/* Price */}
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider text-[#A397A3]">
+                      Price
+                    </span>
 
-                  <p className="mt-0.5 text-lg font-bold text-text-3">
-                    {product.price} DZ
-                  </p>
+                    <p className="mt-0.5 text-lg font-bold text-text-3">
+                      {product.price} DZ
+                    </p>
+                  </div>
                 </div>
+
               </div>
+            </Link>
 
-            </div>
-          </Link>
-
-          {/* ================= WISHLIST ================= */}
-           <Link
-            to="/wishlist">
-          <button
-            type="button"
-            aria-label="Add to wishlist"
-            className="
+            {/* ================= WISHLIST ================= */}
+            <button
+              type="button"
+              aria-label="Add to wishlist"
+              className={`
               group/wishlist
               absolute right-4 top-4 z-20
               flex h-11 w-11
               items-center justify-center
               rounded-full
               border border-white/70
-              bg-white/90
+              ${isProductInWishlist(product.id,wishlist,products)? "bg-secondary":"bg-white/90"} 
               shadow-[0_5px_20px_rgba(0,0,0,0.08)]
               backdrop-blur-md
               transition-all duration-300
-              hover:scale-110
-              hover:bg-[#56044F]
+              hover:scale-120
+              ${isProductInWishlist(product.id,wishlist,products)? "hover:bg-white/90" : "hover:bg-secondary"} 
               active:scale-95
-            "
-          >
-            <img
-              src={heart}
-              alt=""
-              className="
+            `}
+              onClick={async (e) => {
+                e.preventDefault();
+                await handleclick(product.id,userId,setmessage,refreshWishlist);
+              }}
+            >
+              <img
+                src={heart}
+                alt=""
+                className={`
                 h-5 w-5
                 transition-all duration-300
-                group-hover/wishlist:brightness-0
-                group-hover/wishlist:invert
-              "
-            />
-          </button>
-           </Link>
-          {/* ================= CART LINK ================= */}
-          <Link
-            to="/cart"
-            aria-label="Add to cart"
-            className="
+                ${isProductInWishlist(product.id,wishlist,products)? "brightness-0 invert" : ""} 
+                ${isProductInWishlist(product.id,wishlist,products)? "group-hover/wishlist:invert-0" : "group-hover/wishlist:brightness-0 group-hover/wishlist:invert"} 
+              `}
+              />
+            </button>
+            {/* ================= CART LINK ================= */}
+            <Link
+              to="/cart"
+              aria-label="Add to cart"
+              className="
               group/cart
               absolute bottom-5 right-5 z-20
               flex h-11 w-11
@@ -186,21 +199,22 @@ function Products({ products }: ProductPageProps) {
               hover:shadow-[#56044F]/25
               active:scale-95
             "
-          >
-            <img
-              src={cart}
-              alt=""
-              className="
+            >
+              <img
+                src={cart}
+                alt=""
+                className="
                 h-5 w-5
                 brightness-0 invert
                 transition-transform duration-300
                 group-hover/cart:scale-110
               "
-            />
-          </Link>
-        </article>
-      ))}
-    </section>
+              />
+            </Link>
+          </article>
+        ))}
+      </section>
+    </>
   );
 }
 

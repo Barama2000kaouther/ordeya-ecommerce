@@ -5,7 +5,11 @@ import cartIcon from "../assets/icons/cart.svg";
 import wishlistIcon from "../assets/icons/heart.svg";
 import languageIcon from "../assets/icons/internet.svg";
 
-const Header = () => {
+interface wishlistpropcount{
+  wishlistCount:number
+}
+
+const Header = ({wishlistCount}:wishlistpropcount) => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/85 backdrop-blur-xl">
 
@@ -65,7 +69,7 @@ const Header = () => {
                 sm:h-5 sm:min-w-5 sm:text-[10px]
               "
             >
-              2
+              {wishlistCount}
             </span>
           </Link>
 

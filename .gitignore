@@ -58,3 +58,8 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+.env.local
+.env
+.env.*
+!.env.example

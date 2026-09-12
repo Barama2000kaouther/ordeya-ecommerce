@@ -1,13 +1,169 @@
 import { useState } from 'react';
-import type Product from '../../types';
+import type { Product } from '../../types';
 import shopping from '../../assets/icons/cart.svg';
 import heart from '../../assets/icons/heart.svg';
-
-function Productdetail({ product }: { product: Product | undefined }) {
+import { handleclick } from '../../utils';
+import type { Carts } from '../../types';
+import { isProductInWishlist } from '../../utils';
+import { supabase } from '../../supabase';
+import { useNavigate } from "react-router";
+interface ProductPageProps {
+  product: Product;
+  userId?: string;
+  refreshWishlist: () => void;
+  wishlist: Product[];
+}
+function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPageProps) {
+  let navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product?.color[0]);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [selectedSizeid, setSelectedSizeid] = useState<number | null>(null);
+  const [message, setmessage] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [Cart, setCart] = useState<Carts | null>(null);
+
+  const Addcart = async (element:string) => {
+    // Check if user is authenticated
+    if (!userId) {
+      setmessage("Vous devez être connecté.");
+      return;
+    }
+
+    // Check color and size first
+    if (!selectedColor || selectedSize === null) {
+      setmessage("N'oubliez pas de choisir une couleur et une taille.");
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+
+    // 1. Check if the user already has a cart
+    const { data: existingCart, error: fetchCartError } = await supabase
+      .from("cart")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (fetchCartError) {
+      console.log("Error fetching cart:", fetchCartError);
+      setmessage("Une erreur est survenue.");
+      return;
+    }
+
+    let currentCart: Carts | null = existingCart;
+
+    // 2. If cart exists → update it
+    if (existingCart) {
+      const { data: updatedCart, error: updateCartError } = await supabase
+        .from("cart")
+        .update({ updated_at: timestamp })
+        .eq("id", existingCart.id)
+        .select()
+        .single();
+
+      if (updateCartError) {
+        console.log("Error updating cart:", updateCartError);
+        setmessage("Une erreur est survenue.");
+        return;
+      }
+
+      currentCart = updatedCart;
+    }
+
+    // 3. If cart doesn't exist → create it
+    else {
+      const { data: newCart, error: insertCartError } = await supabase
+        .from("cart")
+        .insert({
+          user_id: userId,
+          updated_at: timestamp,
+        })
+        .select()
+        .single();
+
+      if (insertCartError) {
+        console.log("Insert error:", insertCartError);
+        setmessage("Une erreur est survenue.");
+        return;
+      }
+
+      currentCart = newCart;
+    }
+
+    // 4. Make sure we have a cart
+    if (!currentCart) {
+      setmessage("Impossible de créer le panier.");
+      return;
+    }
+
+    setCart(currentCart);
+
+    // 5. Check if this exact product variant already exists
+    const { data: existingItem, error: fetchItemError } = await supabase
+      .from("cart_items")
+      .select("*")
+      .eq("cart_id", currentCart.id)
+      .eq("product_id", product.id)
+      .eq("size", selectedSize)
+      .eq("color", selectedColor)
+      .maybeSingle();
+
+    if (fetchItemError) {
+      console.log("Error checking cart item:", fetchItemError);
+      setmessage("Une erreur est survenue.");
+      return;
+    }
+
+    // 6. Existing item → increase quantity
+    if (existingItem) {
+      const { error: updateItemError } = await supabase
+        .from("cart_items")
+        .update({
+          quantity: existingItem.quantity + quantity,
+        })
+        .eq("id", existingItem.id);
+
+      if (updateItemError) {
+        console.log("Error updating cart item:", updateItemError);
+        setmessage("Une erreur est survenue.");
+        return;
+      }
+
+      console.log("Quantity increased");
+    }
+
+    // 7. Item doesn't exist → create it
+    else {
+      console.log(currentCart);
+      const { error: insertItemError } = await supabase
+        .from("cart_items")
+        .insert({
+          cart_id: currentCart.id,
+          product_id: product.id,
+          quantity: quantity,
+          size: selectedSize,
+          color: selectedColor,
+        });
+
+      if (insertItemError) {
+        console.log("Error inserting cart item:", insertItemError);
+        setmessage("Une erreur est survenue.");
+        return;
+      }
+
+      console.log("New cart item created");
+    }
+
+    setmessage("Produit ajouté au panier.");
+    if(element==='cart'){
+      navigate("/cart");
+    }
+   else if (element==='checkout'){
+      navigate("/checkout");
+
+   }
+  };
 
   if (!product) {
     return (
@@ -30,7 +186,7 @@ function Productdetail({ product }: { product: Product | undefined }) {
           {/* Main Image */}
           <div className="group relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-[#F7F4F6]">
             <img
-              src={product.images[selectedImage]}
+              src={product.images[selectedImage].url}
               alt={product.name}
               className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.03]"
             />
@@ -45,17 +201,16 @@ function Productdetail({ product }: { product: Product | undefined }) {
           <div className="flex gap-3 overflow-x-auto px-1 py-1 justify-between pb-1">
             {product.images.map((image, index) => (
               <button
-                key={`${image}-${index}`}
+                key={image.id}
                 type="button"
                 onClick={() => setSelectedImage(index)}
-                className={`relative h-20 w-16 shrink-0 overflow-hidden rounded-lg transition-all duration-300 md:h-24 md:w-20 ${
-                  selectedImage === index
-                    ? 'ring-2 ring-[#754675] ring-offset-2'
-                    : 'opacity-60 hover:opacity-100'
-                }`}
+                className={`relative h-20 w-16 shrink-0 overflow-hidden rounded-lg transition-all duration-300 md:h-24 md:w-20 ${selectedImage === index
+                  ? 'ring-2 ring-[#754675] ring-offset-2'
+                  : 'opacity-60 hover:opacity-100'
+                  }`}
               >
                 <img
-                  src={image}
+                  src={image.url}
                   alt={`${product.name} ${index + 1}`}
                   className="h-full w-full object-cover"
                 />
@@ -104,21 +259,20 @@ function Productdetail({ product }: { product: Product | undefined }) {
             </div>
 
             <div className="flex items-center gap-4">
-              {product.color.map((color) => (
+              {product.colors.map((color) => (
                 <button
-                  key={color}
+                  key={color.id}
                   type="button"
-                  onClick={() => setSelectedColor(color)}
-                  aria-label={`Select color ${color}`}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition duration-300 ${
-                    selectedColor === color
-                      ? 'ring-1 ring-[#754675] ring-offset-2'
-                      : 'hover:scale-110'
-                  }`}
+                  onClick={() => setSelectedColor(color.color)}
+                  aria-label={`Select color ${color.id}`}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full transition duration-300 ${selectedColor === color.color
+                    ? 'ring-1 ring-[#754675] ring-offset-2'
+                    : 'hover:scale-110'
+                    }`}
                 >
                   <span
                     className="h-7 w-7 rounded-full border border-black/10"
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: color.color }}
                   />
                 </button>
               ))}
@@ -135,18 +289,20 @@ function Productdetail({ product }: { product: Product | undefined }) {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {product.size.map((size) => (
+              {product.sizes.map((size) => (
                 <button
-                  key={size}
+                  key={size.id}
                   type="button"
-                  onClick={() => setSelectedSize(size)}
-                  className={`flex h-11 min-w-12 items-center justify-center rounded-lg border px-4 text-sm transition-all duration-300 ${
-                    selectedSize === size
-                      ? 'border-[#754675] bg-[#754675] text-white'
-                      : 'border-[#DDD5DE] text-[#4A3B4B] hover:border-[#754675] hover:text-[#754675]'
-                  }`}
+                  onClick={() => {
+                    setSelectedSize(size.size)
+                    setSelectedSizeid(size.id)
+                  }}
+                  className={`flex h-11 min-w-12 items-center justify-center rounded-lg border px-4 text-sm transition-all duration-300 ${selectedSizeid === size.id
+                    ? 'border-[#754675] bg-[#754675] text-white'
+                    : 'border-[#DDD5DE] text-[#4A3B4B] hover:border-[#754675] hover:text-[#754675]'
+                    }`}
                 >
-                  {size}
+                  {size.size}
                 </button>
               ))}
             </div>
@@ -192,6 +348,10 @@ function Productdetail({ product }: { product: Product | undefined }) {
             <button
               type="button"
               className="flex h-13 flex-1 items-center justify-center gap-3 rounded-xl bg-[#754675] text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-sm transition-all duration-300 hover:bg-[#5F365F] hover:shadow-lg"
+              onClick={async (e) => {
+                e.preventDefault();
+                await Addcart("cart");
+              }}
             >
               <img
                 src={shopping}
@@ -203,23 +363,39 @@ function Productdetail({ product }: { product: Product | undefined }) {
             </button>
 
             {/* Wishlist */}
+
             <button
               type="button"
               aria-label="Add to wishlist"
-              className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl border border-[#DDD5DE] bg-white transition-all duration-300 hover:border-[#754675] hover:bg-[#F9F5F9]"
+              className={` group/wishlist flex h-13 w-13 shrink-0 items-center
+                 justify-center rounded-xl border border-[#DDD5DE]
+                   transition-all duration-300 
+                  ${isProductInWishlist(product.id, wishlist) ? "bg-secondary" : "bg-white"} 
+                  ${isProductInWishlist(product.id, wishlist) ? "hover:border-secondary hover:bg-white" : "hover:border-white hover:bg-secondary"} 
+                `}
+              onClick={async (e) => {
+                e.preventDefault();
+                await handleclick(product?.id, userId, setmessage, refreshWishlist);
+              }}
             >
               <img
                 src={heart}
                 alt=""
-                className="h-5 w-5"
+                className={`h-5 w-5 ${isProductInWishlist(product.id, wishlist) ? "brightness-0 invert" : ""} 
+                ${isProductInWishlist(product.id, wishlist) ? "group-hover/wishlist:invert-0" : "group-hover/wishlist:brightness-0 group-hover/wishlist:invert"} `}
               />
             </button>
           </div>
-
+          <p>{message}</p>
           {/* Buy now */}
           <button
             type="button"
             className="mt-3 h-13 w-full rounded-xl border border-[#3E263F] bg-[#3E263F] text-sm font-semibold uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-[#754675] hover:border-[#754675]"
+            onClick={async (e) => {
+              e.preventDefault();
+              await Addcart("checkout");
+              
+            }}
           >
             Buy now
           </button>
@@ -237,22 +413,10 @@ function Productdetail({ product }: { product: Product | undefined }) {
               </span>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8E818F]">
-                Returns
-              </span>
-
-              <span className="text-sm font-medium text-[#3E263F]">
-                14 days
-              </span>
-            </div>
-
-            
-
           </div>
         </div>
       </div>
-    </section>
+    </section >
   );
 }
 

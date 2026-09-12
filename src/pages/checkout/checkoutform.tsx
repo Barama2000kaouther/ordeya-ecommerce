@@ -1,63 +1,202 @@
-import type Product from '../../types.ts';
+import { useState, useEffect } from 'react';
 import trash from '../../assets/icons/trash.svg';
-
+import { supabase } from '../../supabase';
+import type { WilayaTarif } from "../../types";
+import type { Commune } from '../../types';
+import type { CartItems } from '../../types';
+import { increasequantity } from '../../util/cartfunction';
+import { decreasequantity } from '../../util/cartfunction';
+import { Deleteitem } from '../../util/cartfunction';
 interface ProductPageProps {
-  products: Product[];
+  willays: WilayaTarif[];
+  userId: string;
 }
 
-function CheckoutForm({ products }: ProductPageProps) {
+function CheckoutForm({ willays, userId }: ProductPageProps) {
+  const [wilaya, setWilaya] = useState('');
+  const [deleveryMode, setDeleveryMode] = useState('');
+  const [commune, setCommune] = useState<Commune[] | null>([]);
+  const [CartItems, setCartItems] = useState<CartItems[]>([]);
+  const [refresh, setRefresh] = useState(0);
+  const [subTotal, setsubTotal] = useState(0);
+  const [Name, setName] = useState('');
+  const [phone, setphone] = useState('');
+  const [adress, setadress] = useState('');
+  const [selectedCommune, setSelectedCommune] = useState('');
+  const selectedWilaya = willays.find(
+    (item) => item.wilaya === wilaya
+  );
+  const deliveryPrice =
+    deleveryMode === "home"
+      ? selectedWilaya?.home_delevery_classic ?? 0
+      : deleveryMode === "office"
+        ? selectedWilaya?.office_delevery_classique ?? 0
+        : 0;
+
+  const getCommunesByWilaya = async (wilaya: number) => {
+    if (!wilaya) {
+      setCommune([]);
+      return;
+    }
+    const { data: communes, error } = await supabase
+      .from('communes')
+      .select("*")
+      .eq('wilaya_id', wilaya);
+    if (error) {
+      console.log('the error is :', error);
+    }
+    setCommune(communes);
+  }
+
+
+
+  useEffect(() => {
+    const cartTotal = CartItems.reduce((total, item) => {
+      const price = item.products?.price ?? 0;
+      return total + price * item.quantity;
+    }, 0);
+
+    setsubTotal(cartTotal);
+  }, [CartItems, refresh]);
+
+  useEffect(() => {
+    const fetchCartItem = async () => {
+      const { data: cart_items, error } = await supabase
+        .from('cart_items')
+        .select(`*
+            ,   products ( *,
+              images:"product-images" ( id, url),
+              colors:"product-color"( id, color ),
+              sizes:"product-size"( id, size ))`);
+      if (error) {
+        console.log('the read error', error);
+      }
+      const combinedItems = cart_items ?? [];
+      setCartItems(combinedItems);
+    };
+    fetchCartItem();
+  }, [refresh]);
+
+  const createOrder = async () => {
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert([
+        {
+          user_id: userId,
+          name: Name,
+          wilaya: wilaya,
+          commune: selectedCommune,
+          address: adress,
+          telephone: phone,
+          delivery_type: deleveryMode,
+          delivery_price: deliveryPrice,
+          subtotal: subTotal,
+          total: subTotal + deliveryPrice,
+        },
+      ]).select().single();
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+    console.log(order.id);
+    //Create order_items from cart_items
+    const orderItems = CartItems.map((item) => ({
+      order_id: order.id,
+      product_id: item.product_id,
+      product_name: item.products.name,
+      quantity: item.quantity,
+      price: item.products.price,
+      color: item.color,
+      size: item.size,
+    }));
+
+    //  Insert all order items
+    const { error: orderItemsError } = await supabase
+      .from("order_items")
+      .insert(orderItems);
+
+    if (orderItemsError) {
+      console.log(orderItemsError);
+      return;
+    }
+    console.log("Order created successfully");
+    //  Get the user's cart
+    const { data: cart, error: cartError } = await supabase
+      .from("cart")
+      .select("id")
+      .eq("user_id", userId)
+      .single();
+
+    if (cartError) {
+      console.log("Cart error:", cartError);
+      return;
+    }
+
+    //  Delete cart items
+    const { error: cartItemsError } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("cart_id", cart.id);
+
+    if (cartItemsError) {
+      console.log("Cart items delete error:", cartItemsError);
+      return;
+    }
+
+    // Delete the cart
+    const { error: deleteCartError } = await supabase
+      .from("cart")
+      .delete()
+      .eq("id", cart.id);
+
+    if (deleteCartError) {
+      console.log("Cart delete error:", deleteCartError);
+      return;
+    }
+
+    console.log("Order created and cart deleted successfully!");
+
+  }
+
   return (
-    <form
-      action=""
+    <div
       className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-8 md:px-6 lg:grid-cols-[1fr_360px] lg:gap-10"
     >
       {/* ================= LEFT : INFORMATION ================= */}
       <div className="rounded-2xl bg-white p-5 sm:p-7 md:p-8">
-        
+
         <h1 className="mb-8 text-center text-2xl font-bold text-[#56044F]">
           Remplir les informations
         </h1>
 
-        {/* Name + Last name */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-semibold text-[#5E5660]"
-            >
-              Nom
-            </label>
+        {/* Name  */}
 
-            <input
-              id="name"
-              type="text"
-              placeholder="Entrer votre nom"
-              className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
-            />
-          </div>
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="name"
+            className="text-sm font-semibold text-[#5E5660]"
+          >
+            Nom
+          </label>
 
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="prenom"
-              className="text-sm font-semibold text-[#5E5660]"
-            >
-              Prénom
-            </label>
-
-            <input
-              id="prenom"
-              type="text"
-              placeholder="Entrer votre prénom"
-              className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
-            />
-          </div>
+          <input
+            id="name"
+            type="text"
+            value={Name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Entrer votre nom"
+            className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
+          />
         </div>
+
 
         {/* Phone */}
         <div className="mt-5 flex flex-col gap-2">
           <label
             htmlFor="telephone"
             className="text-sm font-semibold text-[#5E5660]"
+
           >
             Téléphone
           </label>
@@ -65,6 +204,10 @@ function CheckoutForm({ products }: ProductPageProps) {
           <input
             id="telephone"
             type="tel"
+            minLength={10}
+            maxLength={10}
+            value={phone}
+            onChange={(e) => setphone(e.target.value)}
             placeholder="Entrer votre numéro de téléphone"
             className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
           />
@@ -94,13 +237,30 @@ function CheckoutForm({ products }: ProductPageProps) {
             id="wilaya"
             name="wilaya"
             className="h-11 w-full cursor-pointer rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#B099B5] outline-none focus:ring-1 focus:ring-[#B099B5]"
+            onChange={(e) => {
+              const selected = willays.find(
+                (item) => item.wilaya === e.target.value
+              );
+
+              if (selected) {
+                setWilaya(selected.wilaya);
+                getCommunesByWilaya(selected.id);
+              }
+            }}
           >
-            <option value="">Choisir une wilaya</option>
-            <option value="constantine">Constantine</option>
-            <option value="mila">Mila</option>
-            <option value="alger">Alger</option>
+            <option value="" className="text-text-secondary">
+              Choisir une wilaya
+            </option>
+            {
+              willays.map((wilaya) => {
+                return (<option key={wilaya.id} value={wilaya.wilaya} className="text-text-secondary">
+                  {wilaya.wilaya}
+                </option>);
+              })
+            }
           </select>
         </div>
+
 
         {/* Commune */}
         <div className="mt-6 flex flex-col gap-2">
@@ -114,40 +274,101 @@ function CheckoutForm({ products }: ProductPageProps) {
           <select
             id="commune"
             name="commune"
+            value={selectedCommune}
+            onChange={(e) => setSelectedCommune(e.target.value)}
             className="h-11 w-full cursor-pointer rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#B099B5] outline-none focus:ring-1 focus:ring-[#B099B5]"
           >
             <option value="">Sélectionner une commune</option>
-            <option value="constantine">Constantine</option>
-            <option value="mila">El Khroub</option>
-            <option value="alger">Ali Mendjeli</option>
+            {commune?.map((comune) => {
+              return (<option key={comune.id} value={comune.commune} className="text-text-secondary">
+                {comune.commune}
+              </option>)
+            })}
           </select>
+        </div>
+        {/* lieu de la livraison */}
+        <div className="mt-7 flex flex-col gap-2">
+          <label
+            htmlFor="wilaya"
+            className="text-sm font-semibold text-[#5E5660]"
+          >
+            lieu de la livraison
+          </label>
+
+          <select
+            id="wilaya"
+            name="wilaya"
+            className="h-11 w-full cursor-pointer rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#B099B5] outline-none focus:ring-1 focus:ring-[#B099B5]"
+            onChange={(e) => setDeleveryMode(e.target.value)}
+          >
+            <option value="" className="text-text-secondary">
+              Choisir le mode de livraison
+            </option>
+
+            <option value="home" className="text-black">
+              À domicile
+            </option>
+
+            <option value="office" className="text-black">
+              Au bureau
+            </option>
+          </select>
+        </div>
+        {/* adress */}
+
+        <div className="mt-5 flex flex-col gap-2">
+          <label
+            htmlFor="adress"
+            className="text-sm font-semibold text-[#5E5660]"
+          >
+            adress
+          </label>
+
+          <input
+            id="adress"
+            type="text"
+            value={adress}
+            onChange={(e) => setadress(e.target.value)}
+            placeholder="Entrer votre adress"
+            className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
+          />
         </div>
       </div>
 
       {/* ================= RIGHT : ORDER SUMMARY ================= */}
       <div className="h-fit rounded-2xl bg-[#B099B5] p-5 shadow-sm sm:p-6">
-        
+
         <h2 className="mb-7 text-lg font-bold text-white">
           Total panier
         </h2>
 
         {/* Products */}
         <div className="flex flex-col gap-5">
-          {products.map((product) => (
+          {CartItems.map((item) => (
             <div
-              key={product.id}
+              key={item.id}
               className="flex items-center gap-3"
             >
               {/* Image */}
               <img
-                src={product.images[0]}
-                alt={product.name}
+                src={item.products.images[0].url}
+                alt={item.products.name}
                 className="h-16 w-14 rounded-sm object-cover"
               />
 
               {/* Product name */}
               <p className="min-w-0 flex-1 truncate text-sm font-semibold text-[#56044F]">
-                {product.name}
+                {item.products.name}
+              </p>
+
+              <div
+                className="h-5 w-5 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></div>
+
+              {/* Product size */}
+              <p className="font-semibold text-secondary">
+                {item.size}
               </p>
 
               {/* Quantity */}
@@ -155,17 +376,19 @@ function CheckoutForm({ products }: ProductPageProps) {
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
+                  onClick={() => decreasequantity(item.id, item.quantity, setRefresh)}
                 >
                   −
                 </button>
 
                 <span className="border-x border-[#B099B5]/40 px-2.5 py-1 text-sm font-semibold text-[#56044F]">
-                  1
+                  {item.quantity}
                 </span>
 
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
+                  onClick={() => increasequantity(item.id, item.quantity, setRefresh)}
                 >
                   +
                 </button>
@@ -175,6 +398,7 @@ function CheckoutForm({ products }: ProductPageProps) {
               <button
                 type="button"
                 className="shrink-0 opacity-80 transition hover:scale-110 hover:opacity-100"
+                onClick={() => Deleteitem(item.id, setRefresh)}
               >
                 <img
                   src={trash}
@@ -193,7 +417,7 @@ function CheckoutForm({ products }: ProductPageProps) {
           </span>
 
           <span className="text-base font-semibold text-white">
-            3800 DA
+            {subTotal} DA
           </span>
         </div>
 
@@ -204,7 +428,7 @@ function CheckoutForm({ products }: ProductPageProps) {
           </span>
 
           <span className="text-base font-semibold text-white">
-            300 DA
+            {deliveryPrice} DA
           </span>
         </div>
 
@@ -218,7 +442,7 @@ function CheckoutForm({ products }: ProductPageProps) {
           </span>
 
           <span className="text-lg font-bold text-white">
-            4100 DA
+            {subTotal + deliveryPrice} DA
           </span>
         </div>
 
@@ -229,13 +453,13 @@ function CheckoutForm({ products }: ProductPageProps) {
 
         {/* Button */}
         <button
-          type="submit"
           className="mt-6 w-full rounded-md bg-[#56044F] px-5 py-3 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#43033E] hover:shadow-md"
+          onClick={() => createOrder()}
         >
           Valider la commande
         </button>
       </div>
-    </form>
+    </div>
   );
 }
 

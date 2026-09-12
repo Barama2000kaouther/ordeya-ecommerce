@@ -1,16 +1,20 @@
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import CheckoutForm from "./checkoutform.tsx";
-import type Product from '../../types.ts';
+import type { WilayaTarif } from "../../types";
 
 interface ProductPageProps {
-    products: Product[];
+   
+    wishlistCount: number;
+    willays: WilayaTarif[];
+    userId:string;
 }
-const Checkout = ({ products }: ProductPageProps) => {
+
+const Checkout = ({ willays, wishlistCount,userId }: ProductPageProps) => {
     return (
         <>
             <div className="mx-1 md:mx-4 ">
-                <Header />
+                <Header wishlistCount={wishlistCount} />
                 <div className="my-10 flex flex-col items-center text-center">
                     <span className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#B099B5] md:text-sm">
                         ORDERYA
@@ -26,7 +30,7 @@ const Checkout = ({ products }: ProductPageProps) => {
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
-                <CheckoutForm products={products} />
+                <CheckoutForm  willays={willays} userId={userId} />
             </div>
             <Footer />
         </>
