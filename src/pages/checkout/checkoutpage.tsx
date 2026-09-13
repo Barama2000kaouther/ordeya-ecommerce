@@ -4,13 +4,13 @@ import CheckoutForm from "./checkoutform.tsx";
 import type { WilayaTarif } from "../../types";
 
 interface ProductPageProps {
-   
     wishlistCount: number;
     willays: WilayaTarif[];
-    userId:string;
+    userId: string;
+
 }
 
-const Checkout = ({ willays, wishlistCount,userId }: ProductPageProps) => {
+const Checkout = ({ willays, wishlistCount, userId }: ProductPageProps) => {
     return (
         <>
             <div className="mx-1 md:mx-4 ">
@@ -30,7 +30,7 @@ const Checkout = ({ willays, wishlistCount,userId }: ProductPageProps) => {
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
-                <CheckoutForm  willays={willays} userId={userId} />
+                <CheckoutForm willays={willays} userId={userId} />
             </div>
             <Footer />
         </>

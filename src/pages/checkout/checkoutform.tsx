@@ -7,9 +7,11 @@ import type { CartItems } from '../../types';
 import { increasequantity } from '../../util/cartfunction';
 import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
+
 interface ProductPageProps {
   willays: WilayaTarif[];
   userId: string;
+
 }
 
 function CheckoutForm({ willays, userId }: ProductPageProps) {
@@ -99,7 +101,8 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
       console.log(error);
       return;
     }
-    console.log(order.id);
+    console.log('the order has been created', order);
+
     //Create order_items from cart_items
     const orderItems = CartItems.map((item) => ({
       order_id: order.id,
@@ -112,14 +115,15 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
     }));
 
     //  Insert all order items
-    const { error: orderItemsError } = await supabase
+    const { data: order_item, error: orderItemsError } = await supabase
       .from("order_items")
-      .insert(orderItems);
+      .insert(orderItems).select();
 
     if (orderItemsError) {
       console.log(orderItemsError);
       return;
     }
+    console.log("the order item", order_item);
     console.log("Order created successfully");
     //  Get the user's cart
     const { data: cart, error: cartError } = await supabase
@@ -154,8 +158,21 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
       console.log("Cart delete error:", deleteCartError);
       return;
     }
-
+    console.log("the order item", order_item);
+    console.log("the order item", order);
     console.log("Order created and cart deleted successfully!");
+    const { data, error: error1 } = await supabase.functions.invoke("send_order_email", {
+      body: {
+        order: order,
+        orderItems: order_item,
+      },
+    });
+
+    if (error) {
+      console.error("Function error:", error1);
+    }
+    console.log("Function response:", data);
+    console.log("Order created successfully!");
 
   }
 
@@ -460,6 +477,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
         </button>
       </div>
     </div>
+
   );
 }
 

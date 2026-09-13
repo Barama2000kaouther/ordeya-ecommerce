@@ -3,7 +3,7 @@ import Footer from "../../components/footer";
 import CartTable from "./CartTable.tsx";
 import type { WilayaTarif } from "../../types";
 import Totalcart from "./cartTotal.tsx";
-import { useRef } from "react";
+import { useState } from "react";
 interface ProductPageProps {
     willays:WilayaTarif[];
     wishlistCount:number;
@@ -11,7 +11,7 @@ interface ProductPageProps {
 
 
 function Cart({ willays ,wishlistCount}: ProductPageProps) {
-   const Total=useRef(0);
+   const [Total,setTotal]=useState(0);
     return (
         <>
             <div className="mx-1 md:mx-4 ">
@@ -32,7 +32,7 @@ function Cart({ willays ,wishlistCount}: ProductPageProps) {
 
                 </div>
                 <div className="mx-auto my-10 grid max-w-7xl grid-cols-1 gap-8 px-4 md:grid-cols-[1fr_380px] lg:gap-12">
-                    <CartTable Total={Total}/>
+                    <CartTable setTotal={setTotal}/>
                     <Totalcart willays={willays} Total={Total} />
                 </div>
 

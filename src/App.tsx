@@ -10,6 +10,7 @@ import Shop from './pages/shop/shop';
 import ProductPage from './pages/productpage/productPage.tsx';
 import Cart from './pages/cart/cart.tsx';
 import Checkout from './pages/checkout/checkoutpage.tsx';
+
 // i have a wishlist in the product detail and i forget to change their function and i have to change it  
 function App() {
   // const Products: Product[] = [
@@ -175,7 +176,7 @@ function App() {
     initSession();
 
   }, []);
-  
+
   useEffect(() => {
     const fetchwislist = async () => {
       const { data, error } = await supabase
@@ -198,27 +199,30 @@ function App() {
         data?.flatMap((item) => item.products) ?? [];
 
       setWishlist(wishlistProducts);
-      const count=data?.length ?? 0;
+      const count = data?.length ?? 0;
       setWishlistCount(count);
       console.log("wishlist element ", wishlistProducts);
     }
     fetchwislist();
   }, [wishlistVersion]);
-  
+
 
   const refreshWishlist = () => {
     setWishlistVersion(prev => prev + 1);
   };
+  
+
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage products={Products} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} wishlist={wishlist}  />} />
+          <Route path="/" element={<HomePage products={Products} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} wishlist={wishlist} />} />
           <Route path="wishlist/" element={<WishList products={wishlist} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} />} />
           <Route path="shop/" element={<Shop products={Products} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} wishlist={wishlist} />} />
-          <Route path="/product/:id" element={<ProductPage products={Products}  wishlistCount={wishlistCount} userId={userId} refreshWishlist={refreshWishlist} wishlist={wishlist}  />} />
-          <Route path="/cart" element={<Cart  willays={wilayas}  wishlistCount={wishlistCount}/>} />
-          <Route path="/checkout" element={<Checkout  willays={wilayas}  wishlistCount={wishlistCount} userId={userId} />} />
+          <Route path="/product/:id" element={<ProductPage products={Products} wishlistCount={wishlistCount} userId={userId} refreshWishlist={refreshWishlist} wishlist={wishlist} />} />
+          <Route path="/cart" element={<Cart willays={wilayas} wishlistCount={wishlistCount} />} />
+          <Route path="/checkout" element={<Checkout willays={wilayas} wishlistCount={wishlistCount} userId={userId} />} />
+
         </Routes>
       </BrowserRouter>
     </>

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import type { WilayaTarif } from "../../types";
 interface willayaProps {
   willays: WilayaTarif[];
-  Total: React.RefObject<number>;
+  Total: number;
 }
 function Totalcart({ willays, Total }: willayaProps) {
 
@@ -32,7 +32,7 @@ function Totalcart({ willays, Total }: willayaProps) {
         </span>
 
         <span className="text-sm font-medium text-text-3">
-          {Total.current} DZ
+          {Total} DZ
         </span>
       </div>
 
@@ -104,7 +104,7 @@ function Totalcart({ willays, Total }: willayaProps) {
         </div>
 
         <span className="text-2xl font-bold tracking-tight text-text-3">
-          {Total.current + deliveryPrice} DZ
+          {Total+ deliveryPrice} DZ
         </span>
       </div>
 

@@ -6,10 +6,10 @@ import { increasequantity } from '../../util/cartfunction';
 import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
 interface proptotal {
-  Total: React.RefObject<number>;
+  setTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
-function CartTable({ Total }: proptotal) {
+function CartTable({ setTotal }: proptotal) {
   const [CartItems, setCartItems] = useState<CartItems[]>([]);
   const [refresh, setRefresh] = useState(0);
 
@@ -20,7 +20,7 @@ function CartTable({ Total }: proptotal) {
       return total + price * item.quantity;
     }, 0);
 
-    Total.current = cartTotal;
+    setTotal( cartTotal);
   }, [CartItems, refresh]);
 
   useEffect(() => {

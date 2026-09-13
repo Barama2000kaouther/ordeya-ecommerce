@@ -54,3 +54,27 @@ export type Commune = {
   commune: string;
   wilaya_id: number;
 };
+export type OrderItem = {
+  color: string;
+  id: string;
+  order_id: string;
+  price: number;
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  size: number;
+};
+export type Order = {
+  address: string;
+  commune: string;
+  created_at: string;
+  delivery_price: number;
+  delivery_type: "home" | "office";
+  id: string;
+  name: string;
+  subtotal: number;
+  telephone: string;
+  total: number;
+  user_id: string;
+  wilaya: string;
+};
