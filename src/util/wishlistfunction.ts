@@ -9,8 +9,11 @@ export const isProductInWishlist = (productId: string, wishlist: Product[] | und
   }
 };
 
-export const handleclick = async (productId: string, userId: string, setmessage: Dispatch<SetStateAction<string>>, refreshWishlist: () => void) => {
-  
+export const handleclick = async (product: Product, productId: string, userId: string | undefined, setmessage: Dispatch<SetStateAction<string>>, setWishlist: Dispatch<SetStateAction<Product[]>>) => {
+  if (!userId) {
+    setmessage("Vous devez être connecté.");
+    return;
+  }
   const { data: wishlist, error } = await supabase
     .from('wishlist')
     .select("*")
@@ -22,6 +25,7 @@ export const handleclick = async (productId: string, userId: string, setmessage:
     console.log("Wishlist error:", error);
     return;
   }
+  // Remove from wishlist
   if ((wishlist && wishlist.length > 0)) {
     const { error } = await supabase
       .from('wishlist')
@@ -34,8 +38,11 @@ export const handleclick = async (productId: string, userId: string, setmessage:
       console.log("delete error:", error);
       return;
     }
+    // Update React state
+    setWishlist((currentWishlist) =>
+      currentWishlist.filter((item) => item.id !== productId)
+    );
     setmessage("");
-    refreshWishlist();
   } else {
     const { error } = await supabase
       .from('wishlist')
@@ -49,7 +56,11 @@ export const handleclick = async (productId: string, userId: string, setmessage:
       console.log("insert error:", error);
       return;
     }
-    refreshWishlist();
+    // Update React state
+    setWishlist((currentWishlist) => [
+      ...currentWishlist,
+      product,
+    ]);
     setmessage("");
   }
 };

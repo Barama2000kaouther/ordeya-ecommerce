@@ -7,7 +7,10 @@ import { useAppContext } from '../context/appcontext';
 
 
 const Header = () => {
-  const { wishlistCount, cartItemCount }=useAppContext();
+  const { wishlist, CartItems } = useAppContext();
+  const wishlistCount = wishlist.length ?? 0;
+  const cartItemCount = CartItems.length ?? 0;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/85 backdrop-blur-xl">
 

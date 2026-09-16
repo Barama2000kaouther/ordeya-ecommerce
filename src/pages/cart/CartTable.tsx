@@ -10,7 +10,7 @@ interface proptotal {
 }
 
 function CartTable({ setTotal }: proptotal) {
-  const { CartItems, refreshCartItem, refreshCart } = useAppContext();
+  const { CartItems,setCartItems } = useAppContext();
   useEffect(() => {
     const cartTotal = CartItems.reduce((total, item) => {
       const price = item.products?.price ?? 0;
@@ -18,9 +18,8 @@ function CartTable({ setTotal }: proptotal) {
     }, 0);
 
     setTotal(cartTotal);
-  }, [CartItems, refreshCart]);
+  }, [CartItems]);
 
-  console.log('the cart item', CartItems);
 
   return (
     <div className="w-full">
@@ -109,7 +108,7 @@ function CartTable({ setTotal }: proptotal) {
                   <button
                     type="button"
                     className="px-3 py-1.5 text-text-secondary transition hover:bg-secondary hover:text-white"
-                    onClick={() => decreasequantity(item.id, item.quantity, refreshCartItem)}
+                    onClick={() => decreasequantity(item.id, item.quantity, setCartItems)}
                   >
                     −
                   </button>
@@ -121,7 +120,7 @@ function CartTable({ setTotal }: proptotal) {
                   <button
                     type="button"
                     className="px-3 py-1.5 text-text-secondary transition hover:bg-secondary hover:text-white"
-                    onClick={() => increasequantity(item.id, item.quantity, refreshCartItem)}
+                    onClick={() => increasequantity(item.id, item.quantity, setCartItems)}
                   >
                     +
                   </button>
@@ -138,7 +137,7 @@ function CartTable({ setTotal }: proptotal) {
                 <button
                   type="button"
                   className='hover:cursor-pointer'
-                  onClick={() => Deleteitem(item.id, refreshCartItem)}
+                  onClick={() => Deleteitem(item.id,setCartItems)}
                 >
                   <img
                     src={trash}
@@ -203,7 +202,7 @@ function CartTable({ setTotal }: proptotal) {
                 {/* Delete */}
                 <button
                   type="button"
-                  onClick={() => Deleteitem(item.id, refreshCartItem)}
+                  onClick={() => Deleteitem(item.id, setCartItems)}
                 >
                   <img
                     src={trash}
@@ -224,7 +223,7 @@ function CartTable({ setTotal }: proptotal) {
                     type="button"
                     className="px-3 py-1"
                     onClick={() =>
-                      decreasequantity(item.id, item.quantity, refreshCartItem)
+                      decreasequantity(item.id, item.quantity, setCartItems)
                     }
                   >
                     −
@@ -238,7 +237,7 @@ function CartTable({ setTotal }: proptotal) {
                     type="button"
                     className="px-3 py-1"
                     onClick={() =>
-                      increasequantity(item.id, item.quantity, refreshCartItem)
+                      increasequantity(item.id, item.quantity, setCartItems)
                     }
                   >
                     +

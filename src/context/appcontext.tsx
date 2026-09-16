@@ -7,11 +7,8 @@ interface AppContextType {
   wishlist: Product[];
   CartItems: CartItems[];
   userId: string | undefined;
-  wishlistCount: number;
-  cartItemCount: number;
-  refreshWishlist: () => void;
-  refreshCartItem: () => void;
-  refreshCart:number;
+  setWishlist: React.Dispatch<React.SetStateAction<Product[]>>;
+  setCartItems: React.Dispatch<React.SetStateAction<CartItems[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

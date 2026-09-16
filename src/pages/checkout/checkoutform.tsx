@@ -9,8 +9,8 @@ import { useAppContext } from '../../context/appcontext';
 import { useNavigate } from 'react-router';
 
 function CheckoutForm() {
-  const { willayas, userId, CartItems, refreshCartItem, refreshCart } = useAppContext();
-  const navigate=useNavigate();
+  const { willayas, userId, CartItems,setCartItems } = useAppContext();
+  const navigate = useNavigate();
 
   const [wilaya, setWilaya] = useState('');
   const [deleveryMode, setDeleveryMode] = useState('');
@@ -59,7 +59,7 @@ function CheckoutForm() {
     }, 0);
 
     setsubTotal(cartTotal);
-  }, [CartItems, refreshCart]);
+  }, [CartItems]);
 
   // Create a new order
   const createOrder = async () => {
@@ -175,7 +175,8 @@ function CheckoutForm() {
       console.log("Cart items delete error:", cartItemsError);
       return;
     }
-    refreshCartItem();
+    // delete the cartitem
+    setCartItems([]);
     // Delete the cart
     const { error: deleteCartError } = await supabase
       .from("cart")
@@ -418,7 +419,7 @@ function CheckoutForm() {
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
-                  onClick={() => decreasequantity(item.id, item.quantity, refreshCartItem)}
+                  onClick={() => decreasequantity(item.id, item.quantity, setCartItems)}
                 >
                   −
                 </button>
@@ -430,7 +431,7 @@ function CheckoutForm() {
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
-                  onClick={() => increasequantity(item.id, item.quantity, refreshCartItem)}
+                  onClick={() => increasequantity(item.id, item.quantity, setCartItems)}
                 >
                   +
                 </button>
@@ -440,7 +441,7 @@ function CheckoutForm() {
               <button
                 type="button"
                 className="shrink-0 opacity-80 transition hover:scale-110 hover:opacity-100"
-                onClick={() => Deleteitem(item.id, refreshCartItem)}
+                onClick={() => Deleteitem(item.id, setCartItems)}
               >
                 <img
                   src={trash}

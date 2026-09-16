@@ -7,7 +7,7 @@ interface ProductPageProps {
     products: Product[];
 }
 
-function ProductPage({ products}: ProductPageProps) {
+function ProductPage({ products }: ProductPageProps) {
     const { id } = useParams();
 
     const productId = id;
@@ -38,7 +38,7 @@ function ProductPage({ products}: ProductPageProps) {
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
                 {product && (
-                    <Productdetail product={product} />
+                    <Productdetail product={product} products={products} />
                 )}
             </div>
 

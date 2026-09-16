@@ -104,11 +104,7 @@ function App() {
   const [Products, setProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [CartItems, setCartItems] = useState<CartItems[]>([]);
-  const [refreshCart, setRefreshCart] = useState(0);
   const [userId, setuserId] = useState<string | undefined>(undefined);
-  const [wishlistVersion, setWishlistVersion] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
-  const [cartItemCount, setcartItemCount] = useState(0);
   const initializing = useRef(false);
 
   useEffect(() => {
@@ -206,13 +202,10 @@ function App() {
         data?.flatMap((item) => item.products) ?? [];
 
       setWishlist(wishlistProducts);
-      // Count the number of wishlist items
-      const count = data?.length ?? 0;
-      setWishlistCount(count);
       console.log("wishlist element ", wishlistProducts);
     }
     fetchwislist();
-  }, [wishlistVersion]);
+  }, [ ]);
 
   // Fetch the user's cart items from Supabase
   useEffect(() => {
@@ -229,21 +222,13 @@ function App() {
         console.log('the read error', error);
       }
       const combinedItems = cart_items ?? [];
-      setcartItemCount(combinedItems.length ?? 0);
       setCartItems(combinedItems);
     };
 
     fetchCartItem();
-  }, [refreshCart]);
+  }, [ ]);
 
-  // Refresh the wishlist by changing its version.
-  // This causes the wishlist useEffect above to run again.
-  const refreshWishlist = () => {
-    setWishlistVersion(prev => prev + 1);
-  };
-  const refreshCartItem = () => {
-    setRefreshCart(prev => prev + 1);
-  };
+
 
   return (
     <>
@@ -252,11 +237,8 @@ function App() {
         wishlist,
         CartItems,
         userId,
-        wishlistCount,
-        cartItemCount,
-        refreshWishlist,
-        refreshCartItem,
-        refreshCart,
+        setWishlist,
+        setCartItems,
       }}>
         <BrowserRouter>
           <Routes>

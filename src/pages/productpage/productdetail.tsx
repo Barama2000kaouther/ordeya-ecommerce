@@ -10,9 +10,10 @@ import { supabase } from '../../supabase';
 import { useNavigate } from "react-router";
 interface ProductPageProps {
   product: Product;
+  products: Product[];
 }
 function Productdetail({ product }: ProductPageProps) {
-  const { userId, refreshWishlist, wishlist, refreshCartItem }=useAppContext();
+  const { userId, wishlist, setCartItems, setWishlist } = useAppContext();
   let navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -68,7 +69,6 @@ function Productdetail({ product }: ProductPageProps) {
       }
 
       currentCart = updatedCart;
-      refreshCartItem();
     }
 
     //  If cart doesn't exist → create it
@@ -90,7 +90,6 @@ function Productdetail({ product }: ProductPageProps) {
 
       currentCart = newCart;
 
-      refreshCartItem();
     }
 
     //  Make sure we have a cart
@@ -130,14 +129,24 @@ function Productdetail({ product }: ProductPageProps) {
         setmessage("Une erreur est survenue.");
         return;
       }
-      refreshCartItem();
+      // Update local state
+      setCartItems((currentItems) =>
+        currentItems.map((item) =>
+          item.id === existingItem.id
+            ? {
+              ...item,
+              quantity: existingItem.quantity + quantity,
+            }
+            : item
+        )
+      );
+
       console.log("Quantity increased");
     }
 
     // Item doesn't exist → create it
     else {
-      console.log(currentCart);
-      const { error: insertItemError } = await supabase
+      const { data: newItem, error: insertItemError } = await supabase
         .from("cart_items")
         .insert({
           cart_id: currentCart.id,
@@ -145,16 +154,23 @@ function Productdetail({ product }: ProductPageProps) {
           quantity: quantity,
           size: selectedSize,
           color: selectedColor,
-        });
+        }).select()
+        .single();
 
       if (insertItemError) {
         console.log("Error inserting cart item:", insertItemError);
         setmessage("Une erreur est survenue.");
         return;
       }
-      refreshCartItem();
+      // Add new item to local state
+      setCartItems((currentItems) => [
+        ...currentItems,
+        {
+          ...newItem,
+          products: product,
+        },
+      ]);
 
-      console.log("New cart item created");
     }
 
     setmessage("Produit ajouté au panier.");
@@ -163,7 +179,6 @@ function Productdetail({ product }: ProductPageProps) {
     }
     else if (element === 'checkout') {
       navigate("/checkout");
-
     }
   };
 
@@ -377,7 +392,7 @@ function Productdetail({ product }: ProductPageProps) {
                 `}
               onClick={async (e) => {
                 e.preventDefault();
-                await handleclick(product?.id, userId, setmessage, refreshWishlist);
+                await handleclick(product, product.id, userId, setmessage, setWishlist);
               }}
             >
               <img

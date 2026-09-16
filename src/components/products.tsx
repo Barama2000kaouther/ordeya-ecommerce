@@ -11,7 +11,7 @@ interface ProductPageProps {
   products: Product[];
 }
 function Products({ products }: ProductPageProps) {
-  const { userId, refreshWishlist, wishlist } = useAppContext();
+  const { userId, wishlist, setWishlist } = useAppContext();
   const [message, setmessage] = useState('');
 
   return (
@@ -161,7 +161,7 @@ function Products({ products }: ProductPageProps) {
             `}
               onClick={async (e) => {
                 e.preventDefault();
-                await handleclick(product.id, userId, setmessage, refreshWishlist);
+                await handleclick(product,product.id, userId, setmessage,setWishlist);
               }}
             >
               <img
@@ -177,7 +177,7 @@ function Products({ products }: ProductPageProps) {
             </button>
             {/* ================= CART LINK ================= */}
             <Link
-              to="/cart"
+              to={`/product/${product.id}`}
               aria-label="Add to cart"
               className="
               group/cart

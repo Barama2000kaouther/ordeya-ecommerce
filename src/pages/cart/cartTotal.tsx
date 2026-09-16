@@ -4,8 +4,8 @@ import { useAppContext } from "../../context/appcontext";
 interface willayaProps {
   Total: number;
 }
-function Totalcart({ Total}: willayaProps) {
-  const {willayas, CartItems }=useAppContext();
+function Totalcart({ Total }: willayaProps) {
+  const { willayas, CartItems } = useAppContext();
   const navigate = useNavigate();
   const [wilaya, setWilaya] = useState('');
   const [deleveryMode, setDeleveryMode] = useState('');
@@ -33,6 +33,7 @@ function Totalcart({ Total}: willayaProps) {
     setError("");
     navigate("/checkout");
   };
+
   return (
     <section className="h-fit rounded-2xl bg-text-secondary p-6 md:p-7">
 
