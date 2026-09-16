@@ -5,19 +5,15 @@ import type { Product } from '../../types';
 
 interface ProductPageProps {
     products: Product[];
-    userId?: string;
-    refreshWishlist: () => void;
-    wishlistCount: number;
   
-
 }
 
-function WishList({ products, userId, refreshWishlist, wishlistCount }: ProductPageProps) {
+function WishList({ products}: ProductPageProps) {
 
     return (
         <>
             <div className="mx-1 md:mx-4 ">
-                <Header wishlistCount={wishlistCount} />
+                <Header />
                 <div className="my-10 flex flex-col items-center text-center">
                     <span className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#B099B5] md:text-sm">
                         ORDERYA
@@ -33,7 +29,7 @@ function WishList({ products, userId, refreshWishlist, wishlistCount }: ProductP
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
-                <Products products={products} userId={userId} refreshWishlist={refreshWishlist}  />
+                <Products products={products}  />
                 <br />
             </div>
             <Footer />

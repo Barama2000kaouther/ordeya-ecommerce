@@ -1,22 +1,18 @@
 import { useState } from 'react';
 import type { Product } from '../types';
 import heart from "../assets/icons/heart.svg";
-
+import { useAppContext } from '../context/appcontext';
 import cart from "../assets/icons/cart.svg";
 import { Link } from "react-router";
-
-import { handleclick } from '../utils';
-import { isProductInWishlist } from '../utils';
+import { handleclick } from '../util/wishlistfunction';
+import { isProductInWishlist } from '../util/wishlistfunction';
 
 interface ProductPageProps {
   products: Product[];
-  userId?: string;
-  refreshWishlist: () => void;
-  wishlist?: Product[];
 }
-function Products({ products, userId, refreshWishlist, wishlist }: ProductPageProps) {
+function Products({ products }: ProductPageProps) {
+  const { userId, refreshWishlist, wishlist } = useAppContext();
   const [message, setmessage] = useState('');
-
 
   return (
     <>
@@ -155,17 +151,17 @@ function Products({ products, userId, refreshWishlist, wishlist }: ProductPagePr
               items-center justify-center
               rounded-full
               border border-white/70
-              ${isProductInWishlist(product.id,wishlist,products)? "bg-secondary":"bg-white/90"} 
+              ${isProductInWishlist(product.id, wishlist, products) ? "bg-secondary" : "bg-white/90"} 
               shadow-[0_5px_20px_rgba(0,0,0,0.08)]
               backdrop-blur-md
               transition-all duration-300
               hover:scale-120
-              ${isProductInWishlist(product.id,wishlist,products)? "hover:bg-white/90" : "hover:bg-secondary"} 
+              ${isProductInWishlist(product.id, wishlist, products) ? "hover:bg-white/90" : "hover:bg-secondary"} 
               active:scale-95
             `}
               onClick={async (e) => {
                 e.preventDefault();
-                await handleclick(product.id,userId,setmessage,refreshWishlist);
+                await handleclick(product.id, userId, setmessage, refreshWishlist);
               }}
             >
               <img
@@ -174,8 +170,8 @@ function Products({ products, userId, refreshWishlist, wishlist }: ProductPagePr
                 className={`
                 h-5 w-5
                 transition-all duration-300
-                ${isProductInWishlist(product.id,wishlist,products)? "brightness-0 invert" : ""} 
-                ${isProductInWishlist(product.id,wishlist,products)? "group-hover/wishlist:invert-0" : "group-hover/wishlist:brightness-0 group-hover/wishlist:invert"} 
+                ${isProductInWishlist(product.id, wishlist, products) ? "brightness-0 invert" : ""} 
+                ${isProductInWishlist(product.id, wishlist, products) ? "group-hover/wishlist:invert-0" : "group-hover/wishlist:brightness-0 group-hover/wishlist:invert"} 
               `}
               />
             </button>

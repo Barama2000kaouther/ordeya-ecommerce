@@ -4,23 +4,18 @@ import Hero from "./hero";
 import ChooseUs from "./ChooseUs";
 import Review from "./reviews";
 import Products from "../../components/products.tsx";
-import type {Product} from '../../types';
+import type { Product } from '../../types';
 
 
 interface ProductPageProps {
   products: Product[];
-  userId?: string;
-  refreshWishlist: () => void;
-  wishlistCount:number;
-  wishlist:Product[];
-
 }
 
-function HomePage({ products ,userId ,refreshWishlist,wishlistCount,wishlist}:ProductPageProps  ) {
+function HomePage({ products }: ProductPageProps) {
   return (
     <>
       <div className="mx-1 md:mx-4 ">
-        <Header wishlistCount={wishlistCount}/>
+        <Header />
         <Hero />
         <ChooseUs />
         <div className="my-10 flex flex-col items-center text-center">
@@ -36,7 +31,7 @@ function HomePage({ products ,userId ,refreshWishlist,wishlistCount,wishlist}:Pr
 
           <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
         </div>
-        <Products products={products} userId={userId} refreshWishlist={refreshWishlist} wishlist={wishlist} />
+        <Products products={products} />
         <Review />
       </div>
       <Footer />

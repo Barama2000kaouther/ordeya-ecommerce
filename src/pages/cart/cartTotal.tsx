@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Link } from "react-router";
-import type { WilayaTarif } from "../../types";
+import { useNavigate } from "react-router";
+import { useAppContext } from "../../context/appcontext";
 interface willayaProps {
-  willays: WilayaTarif[];
   Total: number;
 }
-function Totalcart({ willays, Total }: willayaProps) {
-
+function Totalcart({ Total}: willayaProps) {
+  const {willayas, CartItems }=useAppContext();
+  const navigate = useNavigate();
   const [wilaya, setWilaya] = useState('');
   const [deleveryMode, setDeleveryMode] = useState('');
-  const selectedWilaya = willays.find(
+  const [error, setError] = useState("");
+  const selectedWilaya = willayas.find(
     (item) => item.wilaya === wilaya
   );
   const deliveryPrice =
@@ -18,6 +19,20 @@ function Totalcart({ willays, Total }: willayaProps) {
       : deleveryMode === "office"
         ? selectedWilaya?.office_delevery_classique ?? 0
         : 0;
+  const handleBuy = () => {
+    if (CartItems.length === 0) {
+      setError('Votre panier est vide.');
+      return;
+    }
+
+    if (!wilaya || !deleveryMode) {
+      setError("Veuillez choisir une wilaya et un mode de livraison.");
+      return;
+    }
+    // Everything is valid 
+    setError("");
+    navigate("/checkout");
+  };
   return (
     <section className="h-fit rounded-2xl bg-text-secondary p-6 md:p-7">
 
@@ -59,7 +74,7 @@ function Totalcart({ willays, Total }: willayaProps) {
             Choisir une wilaya
           </option>
           {
-            willays.map((wilaya) => {
+            willayas.map((wilaya) => {
               return (<option key={wilaya.id} value={wilaya.wilaya} className="text-text-secondary">
                 {wilaya.wilaya}
               </option>);
@@ -104,19 +119,24 @@ function Totalcart({ willays, Total }: willayaProps) {
         </div>
 
         <span className="text-2xl font-bold tracking-tight text-text-3">
-          {Total+ deliveryPrice} DZ
+          {Total + deliveryPrice} DZ
         </span>
       </div>
 
       {/* Button */}
-      <Link to='/checkout'>
-        <button
-          type="button"
-          className="mt-7 w-full rounded-lg bg-secondary px-5 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:opacity-90"
-        >
-          Acheter maintenant
-        </button>
-      </Link>
+      {error && (
+        <p className="mt-4 text-center text-sm font-semibold text-error">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        className="mt-7 w-full rounded-lg bg-secondary px-5 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:opacity-90"
+        onClick={handleBuy}
+      >
+        Acheter maintenant
+      </button>
+
     </section>
   );
 }

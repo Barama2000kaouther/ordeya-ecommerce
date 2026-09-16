@@ -10,7 +10,9 @@ import Shop from './pages/shop/shop';
 import ProductPage from './pages/productpage/productPage.tsx';
 import Cart from './pages/cart/cart.tsx';
 import Checkout from './pages/checkout/checkoutpage.tsx';
-
+import type { CartItems } from './types';
+import { AppProvider } from './context/appcontext.tsx';
+import SucessOrder from './pages/order/order.tsx';
 // i have a wishlist in the product detail and i forget to change their function and i have to change it  
 function App() {
   // const Products: Product[] = [
@@ -98,14 +100,19 @@ function App() {
   //     size: [36, 38, 40, 42, 44],
   //   },
   // ];
-  const [wilayas, setWilayas] = useState<WilayaTarif[]>([]);
+  const [willayas, setWillayas] = useState<WilayaTarif[]>([]);
   const [Products, setProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
-  const [userId, setuserId] = useState<string | undefined>('');
+  const [CartItems, setCartItems] = useState<CartItems[]>([]);
+  const [refreshCart, setRefreshCart] = useState(0);
+  const [userId, setuserId] = useState<string | undefined>(undefined);
   const [wishlistVersion, setWishlistVersion] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartItemCount, setcartItemCount] = useState(0);
   const initializing = useRef(false);
+
   useEffect(() => {
+    // Fetch all wilayas and their delivery prices
     const fetchWilays = async () => {
       const { data: wilaya_tarifs, error } = await supabase
         .from('wilaya_tarifs')
@@ -115,9 +122,9 @@ function App() {
         return;
       }
 
-      setWilayas(wilaya_tarifs);
+      setWillayas(wilaya_tarifs);
     };
-
+    // Fetch all products with their related images, colors, and sizes
     const fetchproducts = async () => {
       const { data: products, error } = await supabase
         .from('products')
@@ -134,6 +141,7 @@ function App() {
 
       setProducts(products);
     }
+    // Initialize the user's Supabase session
     const initSession = async () => {
       // Prevent StrictMode from running initialization twice
       if (initializing.current) return;
@@ -141,16 +149,17 @@ function App() {
       initializing.current = true;
 
       try {
+        // Check if the user already has an active session
         const {
           data: { session },
         } = await supabase.auth.getSession();
-
+        // If a session already exists, use the existing user
         if (session) {
           console.log("Existing user:", session.user.id);
           setuserId(session.user.id);
           return;
         }
-
+        // If there is no session, create an anonymous user
         const { data, error } =
           await supabase.auth.signInAnonymously();
 
@@ -159,7 +168,6 @@ function App() {
           return;
         }
 
-        console.log("Created user:", data.user?.id);
         setuserId(data.user?.id);
         // If you insert the user into your own table,
         // do it HERE, after getting the user ID.
@@ -168,15 +176,13 @@ function App() {
         initializing.current = false;
       }
     };
-
-
+    // Run all initial data-fetching functions
     fetchWilays();
     fetchproducts();
-    console.log("the session element");
     initSession();
-
   }, []);
 
+  // Fetch the current user's wishlist whenever wishlistVersion changes
   useEffect(() => {
     const fetchwislist = async () => {
       const { data, error } = await supabase
@@ -195,10 +201,12 @@ function App() {
         console.log(error);
       }
       console.log(data);
+      // Extract products from the wishlist records
       const wishlistProducts: Product[] =
         data?.flatMap((item) => item.products) ?? [];
 
       setWishlist(wishlistProducts);
+      // Count the number of wishlist items
       const count = data?.length ?? 0;
       setWishlistCount(count);
       console.log("wishlist element ", wishlistProducts);
@@ -206,25 +214,62 @@ function App() {
     fetchwislist();
   }, [wishlistVersion]);
 
+  // Fetch the user's cart items from Supabase
+  useEffect(() => {
+    const fetchCartItem = async () => {
+      const { data: cart_items, error } = await supabase
+        .from('cart_items')
+        .select(`*
+          ,   products ( *,
+            images:"product-images" ( id, url),
+            colors:"product-color"( id, color ),
+            sizes:"product-size"( id, size ))`)
+        .order('created_at', { ascending: true });
+      if (error) {
+        console.log('the read error', error);
+      }
+      const combinedItems = cart_items ?? [];
+      setcartItemCount(combinedItems.length ?? 0);
+      setCartItems(combinedItems);
+    };
 
+    fetchCartItem();
+  }, [refreshCart]);
+
+  // Refresh the wishlist by changing its version.
+  // This causes the wishlist useEffect above to run again.
   const refreshWishlist = () => {
     setWishlistVersion(prev => prev + 1);
   };
-  
+  const refreshCartItem = () => {
+    setRefreshCart(prev => prev + 1);
+  };
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage products={Products} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} wishlist={wishlist} />} />
-          <Route path="wishlist/" element={<WishList products={wishlist} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} />} />
-          <Route path="shop/" element={<Shop products={Products} userId={userId} refreshWishlist={refreshWishlist} wishlistCount={wishlistCount} wishlist={wishlist} />} />
-          <Route path="/product/:id" element={<ProductPage products={Products} wishlistCount={wishlistCount} userId={userId} refreshWishlist={refreshWishlist} wishlist={wishlist} />} />
-          <Route path="/cart" element={<Cart willays={wilayas} wishlistCount={wishlistCount} />} />
-          <Route path="/checkout" element={<Checkout willays={wilayas} wishlistCount={wishlistCount} userId={userId} />} />
-
-        </Routes>
-      </BrowserRouter>
+      <AppProvider value={{
+        willayas,
+        wishlist,
+        CartItems,
+        userId,
+        wishlistCount,
+        cartItemCount,
+        refreshWishlist,
+        refreshCartItem,
+        refreshCart,
+      }}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage products={Products} />} />
+            <Route path="wishlist/" element={<WishList products={wishlist} />} />
+            <Route path="shop/" element={<Shop products={Products} />} />
+            <Route path="/product/:id" element={<ProductPage products={Products} />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order" element={<SucessOrder />} />
+          </Routes>
+        </BrowserRouter>
+      </AppProvider>
     </>
   )
 }

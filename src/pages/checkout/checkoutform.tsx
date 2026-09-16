@@ -1,40 +1,41 @@
 import { useState, useEffect } from 'react';
 import trash from '../../assets/icons/trash.svg';
 import { supabase } from '../../supabase';
-import type { WilayaTarif } from "../../types";
 import type { Commune } from '../../types';
-import type { CartItems } from '../../types';
 import { increasequantity } from '../../util/cartfunction';
 import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
+import { useAppContext } from '../../context/appcontext';
+import { useNavigate } from 'react-router';
 
-interface ProductPageProps {
-  willays: WilayaTarif[];
-  userId: string;
+function CheckoutForm() {
+  const { willayas, userId, CartItems, refreshCartItem, refreshCart } = useAppContext();
+  const navigate=useNavigate();
 
-}
-
-function CheckoutForm({ willays, userId }: ProductPageProps) {
   const [wilaya, setWilaya] = useState('');
   const [deleveryMode, setDeleveryMode] = useState('');
   const [commune, setCommune] = useState<Commune[] | null>([]);
-  const [CartItems, setCartItems] = useState<CartItems[]>([]);
-  const [refresh, setRefresh] = useState(0);
   const [subTotal, setsubTotal] = useState(0);
   const [Name, setName] = useState('');
+  const [error, setError] = useState("");
   const [phone, setphone] = useState('');
   const [adress, setadress] = useState('');
   const [selectedCommune, setSelectedCommune] = useState('');
-  const selectedWilaya = willays.find(
+
+  // Find the Wilaya object that matches the selected Wilaya
+  const selectedWilaya = willayas.find(
     (item) => item.wilaya === wilaya
   );
+
+  // Calculate the delivery price based on the selected delivery method
   const deliveryPrice =
     deleveryMode === "home"
       ? selectedWilaya?.home_delevery_classic ?? 0
       : deleveryMode === "office"
         ? selectedWilaya?.office_delevery_classique ?? 0
         : 0;
-
+  // Get communes from Supabase where wilaya_id
+  // matches the selected Wilaya
   const getCommunesByWilaya = async (wilaya: number) => {
     if (!wilaya) {
       setCommune([]);
@@ -50,8 +51,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
     setCommune(communes);
   }
 
-
-
+  // Calculate the cart subtotal whenever cart items change
   useEffect(() => {
     const cartTotal = CartItems.reduce((total, item) => {
       const price = item.products?.price ?? 0;
@@ -59,27 +59,55 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
     }, 0);
 
     setsubTotal(cartTotal);
-  }, [CartItems, refresh]);
+  }, [CartItems, refreshCart]);
 
-  useEffect(() => {
-    const fetchCartItem = async () => {
-      const { data: cart_items, error } = await supabase
-        .from('cart_items')
-        .select(`*
-            ,   products ( *,
-              images:"product-images" ( id, url),
-              colors:"product-color"( id, color ),
-              sizes:"product-size"( id, size ))`);
-      if (error) {
-        console.log('the read error', error);
-      }
-      const combinedItems = cart_items ?? [];
-      setCartItems(combinedItems);
-    };
-    fetchCartItem();
-  }, [refresh]);
-
+  // Create a new order
   const createOrder = async () => {
+    // Clear previous error
+    setError("");
+
+    // Validate cart
+    if (CartItems.length === 0) {
+      setError("Votre panier est vide.");
+      return;
+    }
+
+    // Validate name
+    if (!Name.trim()) {
+      setError("Veuillez entrer votre nom.");
+      return;
+    }
+
+    // Validate phone
+    if (!/^\d{10}$/.test(phone)) {
+      setError("Le numéro de téléphone doit contenir exactement 10 chiffres.");
+      return;
+    }
+
+    // Validate Wilaya
+    if (!wilaya) {
+      setError("Veuillez choisir une wilaya.");
+      return;
+    }
+
+    // Validate commune
+    if (!selectedCommune) {
+      setError("Veuillez choisir une commune.");
+      return;
+    }
+
+    // Validate delivery mode
+    if (!deleveryMode) {
+      setError("Veuillez choisir un mode de livraison.");
+      return;
+    }
+
+    // Address is required only for home delivery
+    if (deleveryMode === "home" && !adress.trim()) {
+      setError("Veuillez entrer votre adresse.");
+      return;
+    }
+    // Insert the customer's order into the orders table
     const { data: order, error } = await supabase
       .from('orders')
       .insert([
@@ -147,7 +175,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
       console.log("Cart items delete error:", cartItemsError);
       return;
     }
-
+    refreshCartItem();
     // Delete the cart
     const { error: deleteCartError } = await supabase
       .from("cart")
@@ -158,10 +186,8 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
       console.log("Cart delete error:", deleteCartError);
       return;
     }
-    console.log("the order item", order_item);
-    console.log("the order item", order);
-    console.log("Order created and cart deleted successfully!");
-    const { data, error: error1 } = await supabase.functions.invoke("send_order_email", {
+
+    const { error: errorsendorder } = await supabase.functions.invoke("send_order_email", {
       body: {
         order: order,
         orderItems: order_item,
@@ -169,11 +195,10 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
     });
 
     if (error) {
-      console.error("Function error:", error1);
+      console.error("Function error:", errorsendorder);
     }
-    console.log("Function response:", data);
-    console.log("Order created successfully!");
 
+    navigate("/order");
   }
 
   return (
@@ -255,7 +280,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
             name="wilaya"
             className="h-11 w-full cursor-pointer rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#B099B5] outline-none focus:ring-1 focus:ring-[#B099B5]"
             onChange={(e) => {
-              const selected = willays.find(
+              const selected = willayas.find(
                 (item) => item.wilaya === e.target.value
               );
 
@@ -269,7 +294,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
               Choisir une wilaya
             </option>
             {
-              willays.map((wilaya) => {
+              willayas.map((wilaya) => {
                 return (<option key={wilaya.id} value={wilaya.wilaya} className="text-text-secondary">
                   {wilaya.wilaya}
                 </option>);
@@ -393,7 +418,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
-                  onClick={() => decreasequantity(item.id, item.quantity, setRefresh)}
+                  onClick={() => decreasequantity(item.id, item.quantity, refreshCartItem)}
                 >
                   −
                 </button>
@@ -405,7 +430,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
                 <button
                   type="button"
                   className="px-2.5 py-1 text-sm font-semibold text-[#56044F] transition hover:bg-white"
-                  onClick={() => increasequantity(item.id, item.quantity, setRefresh)}
+                  onClick={() => increasequantity(item.id, item.quantity, refreshCartItem)}
                 >
                   +
                 </button>
@@ -415,7 +440,7 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
               <button
                 type="button"
                 className="shrink-0 opacity-80 transition hover:scale-110 hover:opacity-100"
-                onClick={() => Deleteitem(item.id, setRefresh)}
+                onClick={() => Deleteitem(item.id, refreshCartItem)}
               >
                 <img
                   src={trash}
@@ -467,6 +492,11 @@ function CheckoutForm({ willays, userId }: ProductPageProps) {
         <p className="mt-5 text-sm font-semibold text-[#56044F]">
           Paiement à la livraison
         </p>
+        {error && (
+          <p className="mt-4 text-center text-sm font-semibold text-error">
+            {error}
+          </p>
+        )}
 
         {/* Button */}
         <button

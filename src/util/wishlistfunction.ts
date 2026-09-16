@@ -1,6 +1,6 @@
-import type { Product } from './types';
+import type { Product } from '../types';
 import type { Dispatch, SetStateAction } from "react";
-import { supabase } from './supabase';
+import { supabase } from '../supabase';
 export const isProductInWishlist = (productId: string, wishlist: Product[] | undefined, products?: Product[]) => {
   if (wishlist) {
     return wishlist.some(item => item.id === productId);

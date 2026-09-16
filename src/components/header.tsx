@@ -1,15 +1,13 @@
 import { Link } from "react-router";
-
 import logo from "../assets/icons/logo.svg";
 import cartIcon from "../assets/icons/cart.svg";
 import wishlistIcon from "../assets/icons/heart.svg";
 import languageIcon from "../assets/icons/internet.svg";
+import { useAppContext } from '../context/appcontext';
 
-interface wishlistpropcount{
-  wishlistCount:number
-}
 
-const Header = ({wishlistCount}:wishlistpropcount) => {
+const Header = () => {
+  const { wishlistCount, cartItemCount }=useAppContext();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/85 backdrop-blur-xl">
 
@@ -107,7 +105,7 @@ const Header = ({wishlistCount}:wishlistpropcount) => {
                 sm:h-5 sm:min-w-5 sm:text-[10px]
               "
             >
-              3
+              {cartItemCount}
             </span>
           </Link>
 

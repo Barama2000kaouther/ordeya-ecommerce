@@ -49,6 +49,7 @@ export interface CartItems {
   quantity: number;
   size: number;
 }
+
 export type Commune = {
   id: number;
   commune: string;

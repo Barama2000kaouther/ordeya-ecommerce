@@ -1,45 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import trash from '../../assets/icons/trash.svg';
-import { supabase } from '../../supabase';
-import type { CartItems } from '../../types';
 import { increasequantity } from '../../util/cartfunction';
 import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
+import { useAppContext } from '../../context/appcontext';
+
 interface proptotal {
   setTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function CartTable({ setTotal }: proptotal) {
-  const [CartItems, setCartItems] = useState<CartItems[]>([]);
-  const [refresh, setRefresh] = useState(0);
-
-  
+  const { CartItems, refreshCartItem, refreshCart } = useAppContext();
   useEffect(() => {
     const cartTotal = CartItems.reduce((total, item) => {
       const price = item.products?.price ?? 0;
       return total + price * item.quantity;
     }, 0);
 
-    setTotal( cartTotal);
-  }, [CartItems, refresh]);
+    setTotal(cartTotal);
+  }, [CartItems, refreshCart]);
 
-  useEffect(() => {
-    const fetchCartItem = async () => {
-      const { data: cart_items, error } = await supabase
-        .from('cart_items')
-        .select(`*
-          ,   products ( *,
-            images:"product-images" ( id, url),
-            colors:"product-color"( id, color ),
-            sizes:"product-size"( id, size ))`);
-      if (error) {
-        console.log('the read error', error);
-      }
-      const combinedItems = cart_items ?? [];
-      setCartItems(combinedItems);
-    };
-    fetchCartItem();
-  }, [refresh]);
+  console.log('the cart item', CartItems);
 
   return (
     <div className="w-full">
@@ -128,7 +109,7 @@ function CartTable({ setTotal }: proptotal) {
                   <button
                     type="button"
                     className="px-3 py-1.5 text-text-secondary transition hover:bg-secondary hover:text-white"
-                    onClick={() => decreasequantity(item.id, item.quantity,setRefresh)}
+                    onClick={() => decreasequantity(item.id, item.quantity, refreshCartItem)}
                   >
                     −
                   </button>
@@ -140,7 +121,7 @@ function CartTable({ setTotal }: proptotal) {
                   <button
                     type="button"
                     className="px-3 py-1.5 text-text-secondary transition hover:bg-secondary hover:text-white"
-                    onClick={() => increasequantity(item.id, item.quantity,setRefresh)}
+                    onClick={() => increasequantity(item.id, item.quantity, refreshCartItem)}
                   >
                     +
                   </button>
@@ -157,7 +138,7 @@ function CartTable({ setTotal }: proptotal) {
                 <button
                   type="button"
                   className='hover:cursor-pointer'
-                  onClick={() => Deleteitem(item.id,setRefresh)}
+                  onClick={() => Deleteitem(item.id, refreshCartItem)}
                 >
                   <img
                     src={trash}
@@ -222,7 +203,7 @@ function CartTable({ setTotal }: proptotal) {
                 {/* Delete */}
                 <button
                   type="button"
-                  onClick={() => Deleteitem(item.id,setRefresh)}
+                  onClick={() => Deleteitem(item.id, refreshCartItem)}
                 >
                   <img
                     src={trash}
@@ -243,7 +224,7 @@ function CartTable({ setTotal }: proptotal) {
                     type="button"
                     className="px-3 py-1"
                     onClick={() =>
-                      decreasequantity(item.id, item.quantity,setRefresh)
+                      decreasequantity(item.id, item.quantity, refreshCartItem)
                     }
                   >
                     −
@@ -257,7 +238,7 @@ function CartTable({ setTotal }: proptotal) {
                     type="button"
                     className="px-3 py-1"
                     onClick={() =>
-                      increasequantity(item.id, item.quantity,setRefresh)
+                      increasequantity(item.id, item.quantity, refreshCartItem)
                     }
                   >
                     +

@@ -2,18 +2,17 @@ import { useState } from 'react';
 import type { Product } from '../../types';
 import shopping from '../../assets/icons/cart.svg';
 import heart from '../../assets/icons/heart.svg';
-import { handleclick } from '../../utils';
+import { handleclick } from '../../util/wishlistfunction';
 import type { Carts } from '../../types';
-import { isProductInWishlist } from '../../utils';
+import { isProductInWishlist } from '../../util/wishlistfunction';
+import { useAppContext } from '../../context/appcontext';
 import { supabase } from '../../supabase';
 import { useNavigate } from "react-router";
 interface ProductPageProps {
   product: Product;
-  userId?: string;
-  refreshWishlist: () => void;
-  wishlist: Product[];
 }
-function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPageProps) {
+function Productdetail({ product }: ProductPageProps) {
+  const { userId, refreshWishlist, wishlist, refreshCartItem }=useAppContext();
   let navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -21,9 +20,9 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
   const [selectedSizeid, setSelectedSizeid] = useState<number | null>(null);
   const [message, setmessage] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [Cart, setCart] = useState<Carts | null>(null);
 
-  const Addcart = async (element:string) => {
+
+  const Addcart = async (element: string) => {
     // Check if user is authenticated
     if (!userId) {
       setmessage("Vous devez être connecté.");
@@ -35,10 +34,10 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
       setmessage("N'oubliez pas de choisir une couleur et une taille.");
       return;
     }
-
+    // Create a timestamp for updating the cart
     const timestamp = new Date().toISOString();
 
-    // 1. Check if the user already has a cart
+    // Check if the user already has a cart
     const { data: existingCart, error: fetchCartError } = await supabase
       .from("cart")
       .select("*")
@@ -53,7 +52,7 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
 
     let currentCart: Carts | null = existingCart;
 
-    // 2. If cart exists → update it
+    // If cart exists → update it
     if (existingCart) {
       const { data: updatedCart, error: updateCartError } = await supabase
         .from("cart")
@@ -69,9 +68,10 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
       }
 
       currentCart = updatedCart;
+      refreshCartItem();
     }
 
-    // 3. If cart doesn't exist → create it
+    //  If cart doesn't exist → create it
     else {
       const { data: newCart, error: insertCartError } = await supabase
         .from("cart")
@@ -89,17 +89,18 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
       }
 
       currentCart = newCart;
+
+      refreshCartItem();
     }
 
-    // 4. Make sure we have a cart
+    //  Make sure we have a cart
     if (!currentCart) {
       setmessage("Impossible de créer le panier.");
       return;
     }
 
-    setCart(currentCart);
 
-    // 5. Check if this exact product variant already exists
+    //Check if this exact product variant already exists
     const { data: existingItem, error: fetchItemError } = await supabase
       .from("cart_items")
       .select("*")
@@ -115,7 +116,7 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
       return;
     }
 
-    // 6. Existing item → increase quantity
+    //  Existing item → increase quantity
     if (existingItem) {
       const { error: updateItemError } = await supabase
         .from("cart_items")
@@ -129,11 +130,11 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
         setmessage("Une erreur est survenue.");
         return;
       }
-
+      refreshCartItem();
       console.log("Quantity increased");
     }
 
-    // 7. Item doesn't exist → create it
+    // Item doesn't exist → create it
     else {
       console.log(currentCart);
       const { error: insertItemError } = await supabase
@@ -151,18 +152,19 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
         setmessage("Une erreur est survenue.");
         return;
       }
+      refreshCartItem();
 
       console.log("New cart item created");
     }
 
     setmessage("Produit ajouté au panier.");
-    if(element==='cart'){
+    if (element === 'cart') {
       navigate("/cart");
     }
-   else if (element==='checkout'){
+    else if (element === 'checkout') {
       navigate("/checkout");
 
-   }
+    }
   };
 
   if (!product) {
@@ -394,7 +396,7 @@ function Productdetail({ product, userId, refreshWishlist, wishlist }: ProductPa
             onClick={async (e) => {
               e.preventDefault();
               await Addcart("checkout");
-              
+
             }}
           >
             Buy now
