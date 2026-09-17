@@ -22,5 +22,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "supabase/functions/send_order_email/sendorder.tsx", "src/.ts"]
+  "include": ["src"]
+  // "include": ["src", "supabase/functions/send_order_email/sendorder.tsx", "src/wishlistfunction.ts"]
 }
