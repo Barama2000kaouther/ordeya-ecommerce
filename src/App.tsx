@@ -13,93 +13,10 @@ import Checkout from './pages/checkout/checkoutpage.tsx';
 import type { CartItems } from './types';
 import { AppProvider } from './context/appcontext.tsx';
 import SucessOrder from './pages/order/order.tsx';
+import ScrollToTop from './ScrollToTop.tsx';
 // i have a wishlist in the product detail and i forget to change their function and i have to change it  
 function App() {
-  // const Products: Product[] = [
-  //   {
-  //     id: 1,
-  //     brand: "ordeya-brand",
-  //     name: "Hijab Elena",
-  //     price: 3800,
-  //     images: [
-  //       product1,
-  //       product1,
-  //       product1,
-  //       product1,
-  //       product1,
-  //     ],
-  //     color: [
-  //       '#B38FCC',
-  //       '#EFEC77',
-  //       '#A1C1FC',
-  //       '#4C4245',
-  //       '#A8A3A0',
-  //       '#6A605E',
-  //     ],
-  //     size: [36, 38, 40, 42, 44],
-  //   },
 
-  //   {
-  //     id: 2,
-  //     brand: "ordeya-brand",
-  //     name: "Rob Tima",
-  //     price: 4200,
-  //     images: [
-  //       product3,
-  //       product3,
-  //       product3,
-  //       product3,
-  //       product3,
-  //     ],
-  //     color: [
-  //       '#969BC7',
-  //       '#A2AD8C',
-  //       '#000000',
-  //     ],
-  //     size: [36, 38, 40, 42, 44],
-  //   },
-
-  //   {
-  //     id: 3,
-  //     brand: "ordeya-brand",
-  //     name: "ensemble pretty",
-  //     price: 3900,
-  //     images: [
-  //       product2,
-  //       product2,
-  //       product2,
-  //       product2,
-  //       product2,
-  //     ],
-  //     color: [
-  //       '#A2AD8C',
-  //       '#726361',
-  //       '#969BC7',
-  //       '#AEA3A6',
-  //       '#000000',
-  //     ],
-  //     size: [36, 38, 40, 42, 44],
-  //   },
-
-  //   {
-  //     id: 4,
-  //     brand: "ordeya-brand",
-  //     name: "Abaya Anika",
-  //     price: 3700,
-  //     images: [
-  //       product4,
-  //       product4,
-  //       product4,
-  //       product4,
-  //       product4,
-  //     ],
-  //     color: [
-  //       '#A5C8D5',
-  //       '#000000',
-  //     ],
-  //     size: [36, 38, 40, 42, 44],
-  //   },
-  // ];
   const [willayas, setWillayas] = useState<WilayaTarif[]>([]);
   const [Products, setProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
@@ -205,7 +122,7 @@ function App() {
       console.log("wishlist element ", wishlistProducts);
     }
     fetchwislist();
-  }, [ ]);
+  }, []);
 
   // Fetch the user's cart items from Supabase
   useEffect(() => {
@@ -226,12 +143,13 @@ function App() {
     };
 
     fetchCartItem();
-  }, [ ]);
+  }, []);
 
 
 
   return (
     <>
+
       <AppProvider value={{
         willayas,
         wishlist,
@@ -241,6 +159,7 @@ function App() {
         setCartItems,
       }}>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<HomePage products={Products} />} />
             <Route path="wishlist/" element={<WishList products={wishlist} />} />

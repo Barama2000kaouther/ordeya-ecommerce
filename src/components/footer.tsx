@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-
+import { useTranslation } from "react-i18next";
 import logo from "../assets/icons/logo.svg";
 import mail from "../assets/icons/contact/mail.svg";
 import phone from "../assets/icons/contact/telephone.svg";
@@ -11,6 +11,7 @@ import tiktok from "../assets/icons/social-media/tik-tok.svg";
 import whatsapp from "../assets/icons/social-media/whatsapp.svg";
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="relative overflow-hidden bg-linear-to-br from-[#F2E9F1] via-[#F8F4F7] to-white">
 
@@ -48,9 +49,9 @@ const Footer = () => {
               dir="rtl"
               className="max-w-xs text-center text-sm leading-7 text-[#5E5660] sm:text-left"
             >
-              أناقتك تبدأ من اختيارك.
+              {t("elegance")}
               <br />
-              اكتشف تشكيلتنا واختَر ما يناسبك.
+              {t("discoverCollection")}
             </p>
 
             {/* Social media */}
@@ -60,23 +61,27 @@ const Footer = () => {
                 {
                   icon: instegram,
                   label: "Instagram",
+                  link: 'https://www.instagram.com/ordeya_brand?stkn=MThrc2p4aDNsOThxbQ%3D%3D&utm_source=qr',
                 },
                 {
                   icon: facebook,
                   label: "Facebook",
+                  link: 'https://www.facebook.com/people/Ordeya/61582483307602/?mibextid=wwXIfr&rdid=mFDOa2KNl8JVpGu8&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F18afm9Ako1%2F%3Fmibextid%3DwwXIfr',
                 },
                 {
                   icon: tiktok,
                   label: "TikTok",
+                  link: 'https://www.tiktok.com/@ordeya?_r=1&_t=ZS-99q9Hi9tINY',
                 },
                 {
                   icon: whatsapp,
                   label: "Whatsapp",
+                  link: "https://wa.me/213784970542",
                 },
               ].map((social) => (
                 <a
                   key={social.label}
-                  href="#"
+                  href={social.link}
                   aria-label={social.label}
                   className="
                     flex h-10 w-10 items-center justify-center
@@ -109,7 +114,7 @@ const Footer = () => {
             <div className="flex flex-col gap-4">
 
               <a
-                href="tel:+21365855555"
+                href="https://wa.me/213784970542"
                 className="
                   group flex items-center gap-3
                   text-sm text-[#5E5660]
@@ -130,11 +135,11 @@ const Footer = () => {
                   />
                 </span>
 
-                <span>+213 658 555 55</span>
+                <span>+213 784 970 542</span>
               </a>
 
               <a
-                href="mailto:example@email.com"
+                href="mailto:ordeya.algeria@gmail.com"
                 className="
                   group flex items-center gap-3
                   text-sm text-[#5E5660]
@@ -155,7 +160,7 @@ const Footer = () => {
                   />
                 </span>
 
-                <span>example@email.com</span>
+                <span>ordeya.algeria@gmail.com</span>
               </a>
 
               <a
@@ -180,7 +185,7 @@ const Footer = () => {
                   />
                 </span>
 
-                <span>www.ordeya.com</span>
+                <span>https://ordeya-ecommerce.vercel.app/</span>
               </a>
 
             </div>
@@ -194,7 +199,7 @@ const Footer = () => {
               relative mb-6
               text-lg font-bold text-[#56044F]
             ">
-              Navigation
+              {t("navigation")}
 
               <span className="
                 absolute -bottom-2 left-0
@@ -218,7 +223,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Accueil
+                {t("home")}
               </Link>
 
               <Link
@@ -234,7 +239,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Commande
+                {t("orders")}
               </Link>
 
               <Link
@@ -250,7 +255,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Boutique
+                {t("shop")}
               </Link>
 
               <Link
@@ -266,7 +271,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Liste de souhaits
+                {t("wishlist")}
               </Link>
 
               <Link
@@ -282,7 +287,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Panier
+                {t("cart")}
               </Link>
               <Link
                 to="/checkout"
@@ -297,7 +302,7 @@ const Footer = () => {
                 <span className="opacity-0 transition-opacity group-hover:opacity-100">
                   →
                 </span>
-                Finaliser la commande
+                {t("checkout")}
               </Link>
             </nav>
           </div>
@@ -333,11 +338,11 @@ const Footer = () => {
                 sm:text-xl
               "
             >
-              شكرًا لاختياركم لنا.
+              {t('footerThankYou')}
               <br />
-              نسعى لجعل تجربة تسوقكم
+              {t('footerExperience')}
               <br />
-              سهلة وممتعة
+              {t('footerEnjoyable')}
             </p>
 
             <span className="
@@ -361,11 +366,11 @@ const Footer = () => {
         ">
 
           <p className="text-xs text-[#6B626B] sm:text-sm">
-            © 2026 جميع الحقوق محفوظة
+            {t("copyright")}
           </p>
 
           <p className="text-xs text-[#6B626B]">
-            Designed & Developed with ♥
+            {t("footerDesigned")}
           </p>
 
         </div>

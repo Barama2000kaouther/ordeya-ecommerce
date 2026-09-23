@@ -2,14 +2,14 @@ import { Link } from "react-router";
 import logo from "../assets/icons/logo.svg";
 import cartIcon from "../assets/icons/cart.svg";
 import wishlistIcon from "../assets/icons/heart.svg";
-import languageIcon from "../assets/icons/internet.svg";
 import { useAppContext } from '../context/appcontext';
-
+import LanguageSwitcher from "./languageswitcher";
 
 const Header = () => {
   const { wishlist, CartItems } = useAppContext();
   const wishlistCount = wishlist.length ?? 0;
   const cartItemCount = CartItems.length ?? 0;
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/85 backdrop-blur-xl">
@@ -115,36 +115,7 @@ const Header = () => {
           {/* Divider */}
           <div className="hidden h-7 w-px bg-gray-200 sm:block" />
 
-          {/* Language */}
-          <button
-            type="button"
-            className="
-              group flex h-10 items-center gap-2
-              rounded-full px-3
-              text-sm font-semibold text-gray-700
-              transition-all duration-300
-              hover:bg-[#F6EEF5]
-              hover:text-[#56044F]
-            "
-          >
-            <img
-              src={languageIcon}
-              alt="Language"
-              className="
-                h-5 w-5
-                transition-transform duration-300
-                group-hover:rotate-12
-              "
-            />
-
-            <span>EN</span>
-
-            {/* Small arrow */}
-            <span className="text-[10px] opacity-50">
-              ▼
-            </span>
-          </button>
-
+         < LanguageSwitcher/>
         </div>
       </div>
     </header>
