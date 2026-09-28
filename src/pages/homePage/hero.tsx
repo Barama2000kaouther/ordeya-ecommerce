@@ -2,10 +2,12 @@ import heroimage from "../../assets/images/heroimage.png";
 import hero from "../../assets/images/hero.png";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+
 const Hero = () => {
-     const { t } = useTranslation();
+  const { t } = useTranslation();
+
   return (
-    <section className="relative min-h-162.5 overflow-hidden ">
+    <section className="relative min-h-162.5 overflow-hidden">
 
       {/* Background */}
       <div className="absolute inset-0">
@@ -14,7 +16,6 @@ const Hero = () => {
           alt=""
           className="absolute inset-0 h-full w-full object-cover scale-110 blur-xs opacity-60"
         />
-
       </div>
 
       {/* Content */}
@@ -27,7 +28,7 @@ const Hero = () => {
         {/* Text */}
         <div
           className="z-20 flex flex-col items-center gap-6
-                     text-center md:items-start md:text-right"
+                     text-center md:items-start md:text-start"
         >
 
           {/* Brand */}
@@ -42,12 +43,11 @@ const Hero = () => {
           <h1
             className="max-w-xl text-5xl font-black leading-[1.15]
                        text-text sm:text-4xl lg:text-7xl"
-            dir="rtl"
           >
-           {t('trustStarts')}
+            {t("trustStarts")}
             <br />
             <span className="text-secondary">
-             {t('fromYourClothes')}
+              {t("fromYourClothes")}
             </span>
           </h1>
 
@@ -55,9 +55,8 @@ const Hero = () => {
           <p
             className="max-w-md text-lg leading-8 text-gray-800
                        md:text-xl"
-            dir="rtl"
           >
-           {t('collectionDescription')}
+            {t("collectionDescription")}
           </p>
 
           {/* CTA */}
@@ -72,7 +71,7 @@ const Hero = () => {
                          active:translate-y-0"
             >
               <span className="relative z-10">
-            {t('shopNow')}
+                {t("shopNow")}
               </span>
 
               {/* Button shine */}
@@ -87,10 +86,9 @@ const Hero = () => {
           {/* Small feature text */}
           <div
             className="mt-4 flex items-center gap-3 text-sm text-gray-900"
-            dir="rtl"
           >
             <span className="h-2 w-2 rounded-full bg-secondary" />
-           {t('qualityTagline')}
+            {t("qualityTagline")}
           </div>
         </div>
 
@@ -108,14 +106,14 @@ const Hero = () => {
           <div
             className="absolute h-80 w-80 rounded-full
                        border border-text-secondary
-                      lg:h-120 lg:w-120 md:h-100 md:w-100"
+                       lg:h-120 lg:w-120 md:h-100 md:w-100"
           />
 
           {/* Product */}
           <img
             src={hero}
             alt="Fashion product"
-            className="relative z-10 lg:max-h-150 md:max-h-120 max-h-100 w-auto 
+            className="relative z-10 lg:max-h-150 md:max-h-120 max-h-100 w-auto
                        drop-shadow-[0_25px_35px_rgba(0,0,0,0.20)]
                        transition-transform duration-700
                        hover:scale-115"

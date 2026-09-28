@@ -14,6 +14,7 @@ import type { CartItems } from './types';
 import { AppProvider } from './context/appcontext.tsx';
 import SucessOrder from './pages/order/order.tsx';
 import ScrollToTop from './ScrollToTop.tsx';
+import { useTranslation } from 'react-i18next';
 // i have a wishlist in the product detail and i forget to change their function and i have to change it  
 function App() {
 
@@ -23,6 +24,17 @@ function App() {
   const [CartItems, setCartItems] = useState<CartItems[]>([]);
   const [userId, setuserId] = useState<string | undefined>(undefined);
   const initializing = useRef(false);
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    const language = i18n.language;
+    const isArabic = language.startsWith("ar");
+
+    document.documentElement.dir = isArabic ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+    console.log("Current language:", i18n.language);
+  }, [i18n.language]);
+
+
 
   useEffect(() => {
     // Fetch all wilayas and their delivery prices
