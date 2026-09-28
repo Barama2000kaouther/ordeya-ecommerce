@@ -2,12 +2,13 @@ import Header from "../../components/header";
 import Footer from "../../components/footer";
 import Products from "../../components/products.tsx";
 import type { Product } from '../../types';
-
+import { useTranslation } from "react-i18next";
 interface ProductPageProps {
     products: Product[];
 }
 
 function Shop({ products }: ProductPageProps) {
+    const { t } = useTranslation();
     return (
         <>
             <div className="mx-1 md:mx-4 ">
@@ -18,12 +19,11 @@ function Shop({ products }: ProductPageProps) {
                     </span>
 
                     <h1 className="animate-title text-2xl font-bold tracking-[0.15rem] md:text-4xl md:tracking-[0.3rem] bg-linear-to-r from-secondary via-text-secondary to-secondary bg-clip-text text-transparent">
-                        Découvrez notre collection
+                          {t("exploreCollection")}
                     </h1>
 
                     <p className="mt-3 max-w-lg text-sm leading-6 text-text-secondary md:text-base">
-                        Trouvez les pièces qui correspondent à votre style
-                        et faites votre choix en toute simplicité.
+                           {t("styleDescription")}
                     </p>
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />

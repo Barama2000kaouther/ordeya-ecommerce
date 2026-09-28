@@ -7,9 +7,11 @@ import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
 import { useAppContext } from '../../context/appcontext';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 function CheckoutForm() {
-  const { willayas, userId, CartItems,setCartItems } = useAppContext();
+  const { t } = useTranslation();
+  const { willayas, userId, CartItems, setCartItems } = useAppContext();
   const navigate = useNavigate();
 
   const [wilaya, setWilaya] = useState('');
@@ -210,7 +212,7 @@ function CheckoutForm() {
       <div className="rounded-2xl bg-white p-5 sm:p-7 md:p-8">
 
         <h1 className="mb-8 text-center text-2xl font-bold text-[#56044F]">
-          Remplir les informations
+          {t("fillInformation")}
         </h1>
 
         {/* Name  */}
@@ -220,7 +222,7 @@ function CheckoutForm() {
             htmlFor="name"
             className="text-sm font-semibold text-[#5E5660]"
           >
-            Nom
+            {t("name")}
           </label>
 
           <input
@@ -228,7 +230,7 @@ function CheckoutForm() {
             type="text"
             value={Name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Entrer votre nom"
+            placeholder={t("enterName")}
             className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
           />
         </div>
@@ -241,7 +243,7 @@ function CheckoutForm() {
             className="text-sm font-semibold text-[#5E5660]"
 
           >
-            Téléphone
+            {t("phone")}
           </label>
 
           <input
@@ -251,7 +253,7 @@ function CheckoutForm() {
             maxLength={10}
             value={phone}
             onChange={(e) => setphone(e.target.value)}
-            placeholder="Entrer votre numéro de téléphone"
+            placeholder={t("enterPhone")}
             className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
           />
         </div>
@@ -273,7 +275,7 @@ function CheckoutForm() {
             htmlFor="wilaya"
             className="text-sm font-semibold text-[#5E5660]"
           >
-            Wilaya
+            {t("chooseWilaya")}
           </label>
 
           <select
@@ -292,7 +294,7 @@ function CheckoutForm() {
             }}
           >
             <option value="" className="text-text-secondary">
-              Choisir une wilaya
+              {t('chooseWilaya')}
             </option>
             {
               willayas.map((wilaya) => {
@@ -311,7 +313,7 @@ function CheckoutForm() {
             htmlFor="commune"
             className="text-sm font-semibold text-[#5E5660]"
           >
-            Commune
+            {t("commune")}
           </label>
 
           <select
@@ -321,7 +323,7 @@ function CheckoutForm() {
             onChange={(e) => setSelectedCommune(e.target.value)}
             className="h-11 w-full cursor-pointer rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#B099B5] outline-none focus:ring-1 focus:ring-[#B099B5]"
           >
-            <option value="">Sélectionner une commune</option>
+            <option value="">{t("selectCommune")}</option>
             {commune?.map((comune) => {
               return (<option key={comune.id} value={comune.commune} className="text-text-secondary">
                 {comune.commune}
@@ -335,7 +337,7 @@ function CheckoutForm() {
             htmlFor="wilaya"
             className="text-sm font-semibold text-[#5E5660]"
           >
-            lieu de la livraison
+            {t("deliveryLocation")}
           </label>
 
           <select
@@ -345,15 +347,15 @@ function CheckoutForm() {
             onChange={(e) => setDeleveryMode(e.target.value)}
           >
             <option value="" className="text-text-secondary">
-              Choisir le mode de livraison
+              {t("chooseDeliveryMethod")}
             </option>
 
             <option value="home" className="text-black">
-              À domicile
+              {t("homeDelivery")}
             </option>
 
             <option value="office" className="text-black">
-              Au bureau
+              {t("officeDelivery")}
             </option>
           </select>
         </div>
@@ -364,7 +366,7 @@ function CheckoutForm() {
             htmlFor="adress"
             className="text-sm font-semibold text-[#5E5660]"
           >
-            adress
+            {t("address")}
           </label>
 
           <input
@@ -372,17 +374,17 @@ function CheckoutForm() {
             type="text"
             value={adress}
             onChange={(e) => setadress(e.target.value)}
-            placeholder="Entrer votre adress"
+            placeholder={t("enterAddress")}
             className="h-11 rounded-md bg-[#F8F0F8] px-3 text-sm font-medium text-[#56044F] outline-none placeholder:text-[#B099B5] focus:ring-1 focus:ring-[#B099B5]"
           />
         </div>
       </div>
 
       {/* ================= RIGHT : ORDER SUMMARY ================= */}
-      <div className="h-fit rounded-2xl bg-[#B099B5] p-5 shadow-sm sm:p-6">
+      <div className="h-fit flex flex-col gap-5 rounded-2xl bg-[#B099B5] p-5 shadow-sm sm:p-6">
 
         <h2 className="mb-7 text-lg font-bold text-white">
-          Total panier
+          {t("cartTotal")}
         </h2>
 
         {/* Products */}
@@ -456,7 +458,7 @@ function CheckoutForm() {
         {/* Subtotal */}
         <div className="mt-8 flex items-center justify-between">
           <span className="text-base font-bold text-[#56044F]">
-            Prix total
+            {t("totalPrice")}
           </span>
 
           <span className="text-base font-semibold text-white">
@@ -467,7 +469,7 @@ function CheckoutForm() {
         {/* Delivery */}
         <div className="mt-5 flex items-center justify-between">
           <span className="text-base font-bold text-[#56044F]">
-            Livraison
+            {t("delivery")}
           </span>
 
           <span className="text-base font-semibold text-white">
@@ -481,7 +483,7 @@ function CheckoutForm() {
         {/* Total */}
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-[#56044F]">
-            Total
+            {t("total")}
           </span>
 
           <span className="text-lg font-bold text-white">
@@ -491,7 +493,7 @@ function CheckoutForm() {
 
         {/* Payment */}
         <p className="mt-5 text-sm font-semibold text-[#56044F]">
-          Paiement à la livraison
+          {t("cashOnDelivery")}
         </p>
         {error && (
           <p className="mt-4 text-center text-sm font-semibold text-error">
@@ -504,7 +506,7 @@ function CheckoutForm() {
           className="mt-6 w-full rounded-md bg-[#56044F] px-5 py-3 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#43033E] hover:shadow-md"
           onClick={() => createOrder()}
         >
-          Valider la commande
+          {t("confirmOrder")}
         </button>
       </div>
     </div>

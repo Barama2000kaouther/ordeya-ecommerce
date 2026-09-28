@@ -1,9 +1,10 @@
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import CheckoutForm from "./checkoutform.tsx";
-
+import { useTranslation } from "react-i18next";
 
 const Checkout = () => {
+    const { t } = useTranslation();
     return (
         <>
             <div className="mx-1 md:mx-4 ">
@@ -14,11 +15,11 @@ const Checkout = () => {
                     </span>
 
                     <h1 className="animate-title bg-linear-to-r from-secondary via-[#8F5B88] to-secondary bg-clip-text text-2xl font-bold tracking-[0.15rem] text-transparent md:text-4xl md:tracking-[0.3rem]">
-                        Finaliser la commande
+                   {t('finalizeOrder')}
                     </h1>
 
                     <p className="mt-3 max-w-lg text-sm leading-6 text-text-secondary md:text-base">
-                        Remplissez vos informations pour confirmer votre commande.
+                       {t('orderDescription')}
                     </p>
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />

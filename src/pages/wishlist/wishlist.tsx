@@ -2,13 +2,14 @@ import Header from "../../components/header";
 import Footer from "../../components/footer";
 import Products from "../../components/products.tsx";
 import type { Product } from '../../types';
-
+import { useTranslation } from "react-i18next";
 interface ProductPageProps {
     products: Product[];
-  
+
 }
 
-function WishList({ products}: ProductPageProps) {
+function WishList({ products }: ProductPageProps) {
+    const { t } = useTranslation();
 
     return (
         <>
@@ -20,16 +21,16 @@ function WishList({ products}: ProductPageProps) {
                     </span>
 
                     <h1 className="animate-title bg-linear-to-r from-secondary via-[#8F5B88] to-secondary bg-clip-text text-2xl font-bold tracking-[0.15rem] text-transparent md:text-4xl md:tracking-[0.3rem]">
-                        Mes favoris
+                        {t('myFavorites')}
                     </h1>
 
                     <p className="mt-3 max-w-lg text-sm leading-6 text-text-secondary md:text-base">
-                        Retrouvez vos articles préférés et gardez-les à portée de main.
+                        {t('favoritesDescription')}
                     </p>
 
                     <span className="mt-5 h-1 w-12 rounded-full bg-secondary" />
                 </div>
-                <Products products={products}  />
+                <Products products={products} />
                 <br />
             </div>
             <Footer />

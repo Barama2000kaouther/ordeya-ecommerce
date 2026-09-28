@@ -2,7 +2,7 @@ import pay from "../../assets/icons/features/pay.svg";
 import fast_delevery from "../../assets/icons/features/fast-delivery.svg";
 import mesuring from "../../assets/icons/features/measuring-tape.svg";
 import quality from "../../assets/icons/features/quality.svg";
-
+import { useTranslation } from "react-i18next";
 type Feature = {
   id: number;
   image: string;
@@ -10,26 +10,27 @@ type Feature = {
 };
 
 const ChooseUs = () => {
+   const { t } = useTranslation();
   const features: Feature[] = [
     {
       id: 1,
       image: pay,
-      title: "الدفع عند الاستلام وبعد المعاينة",
+      title: t('cashOnDelivery'),
     },
     {
       id: 2,
       image: mesuring,
-      title: "مقاسات كبيرة متوفرة",
+      title: t("largeSizesAvailable"),
     },
     {
       id: 3,
       image: fast_delevery,
-      title: "توصيل سريع لجميع الولايات",
+      title: t('fastDelivery'),
     },
     {
       id: 4,
       image: quality,
-      title: "الجودة مضمونة",
+      title: t('qualityGuaranteed'),
     },
   ];
 

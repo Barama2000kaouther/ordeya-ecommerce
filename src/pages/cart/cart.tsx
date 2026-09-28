@@ -3,9 +3,10 @@ import Footer from "../../components/footer";
 import CartTable from "./CartTable.tsx";
 import Totalcart from "./cartTotal.tsx";
 import { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 
 function Cart() {
+    const { t } = useTranslation();
     const [Total, setTotal] = useState(0);
     return (
         <>
@@ -14,12 +15,11 @@ function Cart() {
                 <div className="my-10 flex flex-col items-center text-center">
 
                     <h1 className="animate-title bg-linear-to-r from-secondary via-text-secondary to-secondary bg-clip-text text-2xl font-bold tracking-[0.15rem] text-transparent md:text-4xl md:tracking-[0.3rem]">
-                        Votre panier
+                       {t('yourCart')}
                     </h1>
 
                     <p className="mt-3 max-w-lg text-sm leading-6 text-text-secondary md:text-base">
-                        Découvrez les pièces que vous avez choisies
-                        et préparez votre commande.
+                       {t('cartDescription')}
 
                     </p>
 

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAppContext } from "../../context/appcontext";
+import { useTranslation } from "react-i18next";
 interface willayaProps {
   Total: number;
 }
 function Totalcart({ Total }: willayaProps) {
+  const { t } = useTranslation();
   const { willayas, CartItems } = useAppContext();
   const navigate = useNavigate();
   const [wilaya, setWilaya] = useState('');
@@ -38,13 +40,13 @@ function Totalcart({ Total }: willayaProps) {
     <section className="h-fit rounded-2xl bg-text-secondary p-6 md:p-7">
 
       <h2 className="mb-8 text-lg font-semibold text-white">
-        Total panier
+        {t("cartTotal")}
       </h2>
 
       {/* Subtotal */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-surface font-bold">
-          Prix total
+          {t("totalPrice")}
         </span>
 
         <span className="text-sm font-medium text-text-3">
@@ -56,7 +58,7 @@ function Totalcart({ Total }: willayaProps) {
       <div className="mt-6">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm text-surface font-bold">
-            Livraison
+            {t("delivery")}
           </span>
 
           <span className="text-sm font-medium text-white">
@@ -72,7 +74,7 @@ function Totalcart({ Total }: willayaProps) {
           onChange={(e) => setWilaya(e.target.value)}
         >
           <option value="" className="text-text-secondary">
-            Choisir une wilaya
+            {t("chooseWilaya")}
           </option>
           {
             willayas.map((wilaya) => {
@@ -91,15 +93,15 @@ function Totalcart({ Total }: willayaProps) {
           onChange={(e) => setDeleveryMode(e.target.value)}
         >
           <option value="" className="text-text-secondary">
-            Choisir le mode de livraison
+            {t("chooseDeliveryMethod")}
           </option>
 
           <option value="home" className="text-black">
-            À domicile
+            {t("homeDelivery")}
           </option>
 
           <option value="office" className="text-black">
-            Au bureau
+            {t("officeDelivery")}
           </option>
         </select>
       </div>
@@ -111,11 +113,11 @@ function Totalcart({ Total }: willayaProps) {
       <div className="flex items-end justify-between">
         <div>
           <p className="text-sm text-surface font-bold">
-            Total
+            {t("total")}
           </p>
 
           <p className="mt-1 text-xs text-white">
-            Livraison incluse
+            {t("deliveryIncluded")}
           </p>
         </div>
 
@@ -135,7 +137,7 @@ function Totalcart({ Total }: willayaProps) {
         className="mt-7 w-full rounded-lg bg-secondary px-5 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:opacity-90"
         onClick={handleBuy}
       >
-        Acheter maintenant
+        {t("buyNow")}
       </button>
 
     </section>

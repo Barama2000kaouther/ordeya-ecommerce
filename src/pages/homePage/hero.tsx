@@ -1,8 +1,9 @@
 import heroimage from "../../assets/images/heroimage.png";
 import hero from "../../assets/images/hero.png";
 import { Link } from "react-router";
-
+import { useTranslation } from "react-i18next";
 const Hero = () => {
+     const { t } = useTranslation();
   return (
     <section className="relative min-h-162.5 overflow-hidden ">
 
@@ -40,13 +41,13 @@ const Hero = () => {
           {/* Main heading */}
           <h1
             className="max-w-xl text-5xl font-black leading-[1.15]
-                       text-text sm:text-6xl lg:text-7xl"
+                       text-text sm:text-4xl lg:text-7xl"
             dir="rtl"
           >
-            ثقتك تبدأ
+           {t('trustStarts')}
             <br />
             <span className="text-secondary">
-              من لباسك
+             {t('fromYourClothes')}
             </span>
           </h1>
 
@@ -56,8 +57,7 @@ const Hero = () => {
                        md:text-xl"
             dir="rtl"
           >
-            اكتشف مجموعتنا المميزة واختر إطلالتك التي تعكس
-            أناقتك وشخصيتك.
+           {t('collectionDescription')}
           </p>
 
           {/* CTA */}
@@ -72,7 +72,7 @@ const Hero = () => {
                          active:translate-y-0"
             >
               <span className="relative z-10">
-                تسوق الآن
+            {t('shopNow')}
               </span>
 
               {/* Button shine */}
@@ -90,7 +90,7 @@ const Hero = () => {
             dir="rtl"
           >
             <span className="h-2 w-2 rounded-full bg-secondary" />
-            جودة • أناقة • ثقة
+           {t('qualityTagline')}
           </div>
         </div>
 

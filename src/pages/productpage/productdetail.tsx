@@ -8,11 +8,13 @@ import { isProductInWishlist } from '../../util/wishlistfunction';
 import { useAppContext } from '../../context/appcontext';
 import { supabase } from '../../supabase';
 import { useNavigate } from "react-router";
+import { useTranslation } from 'react-i18next';
 interface ProductPageProps {
   product: Product;
   products: Product[];
 }
 function Productdetail({ product }: ProductPageProps) {
+  const { t } = useTranslation();
   const { userId, wishlist, setCartItems, setWishlist } = useAppContext();
   let navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -26,13 +28,13 @@ function Productdetail({ product }: ProductPageProps) {
   const Addcart = async (element: string) => {
     // Check if user is authenticated
     if (!userId) {
-      setmessage("Vous devez être connecté.");
+      setmessage(t("loginRequired"));
       return;
     }
 
     // Check color and size first
     if (!selectedColor || selectedSize === null) {
-      setmessage("N'oubliez pas de choisir une couleur et une taille.");
+      setmessage(t("selectColorAndSize"));
       return;
     }
     // Create a timestamp for updating the cart
@@ -94,7 +96,7 @@ function Productdetail({ product }: ProductPageProps) {
 
     //  Make sure we have a cart
     if (!currentCart) {
-      setmessage("Impossible de créer le panier.");
+      setmessage(t("cannotCreateCart"));
       return;
     }
 
@@ -173,7 +175,7 @@ function Productdetail({ product }: ProductPageProps) {
 
     }
 
-    setmessage("Produit ajouté au panier.");
+    setmessage(t("productAddedToCart"));
     if (element === 'cart') {
       navigate("/cart");
     }
@@ -186,7 +188,7 @@ function Productdetail({ product }: ProductPageProps) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <h1 className="text-xl font-medium text-secondary">
-          Product not found
+          {t("productNotFound")}
         </h1>
       </div>
     );
@@ -256,7 +258,7 @@ function Productdetail({ product }: ProductPageProps) {
             </p>
 
             <span className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-secondary">
-              In stock
+             {t("inStock")}
             </span>
           </div>
 
@@ -267,7 +269,7 @@ function Productdetail({ product }: ProductPageProps) {
           <div className="mb-7">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-secondary">
-                Color
+               {t("color")}
               </p>
 
               <span className="text-xs text-[#9A8D9C]">
@@ -300,7 +302,7 @@ function Productdetail({ product }: ProductPageProps) {
           <div className="mb-7">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-secondary">
-                Size
+                {t("size")}
               </p>
 
             </div>
@@ -328,7 +330,7 @@ function Productdetail({ product }: ProductPageProps) {
           {/* Quantity */}
           <div className="mb-8">
             <p className="mb-4 text-sm font-semibold text-secondary">
-              Quantity
+            {t("quantity")}
             </p>
 
             <div className="flex h-11 w-32 items-center justify-between rounded-lg border border-[#DDD5DE] px-3">
@@ -376,7 +378,7 @@ function Productdetail({ product }: ProductPageProps) {
                 className="h-5 w-5 brightness-0 invert"
               />
 
-              <span>Add to cart</span>
+              <span>{t("addToCart")}</span>
             </button>
 
             {/* Wishlist */}
@@ -414,7 +416,7 @@ function Productdetail({ product }: ProductPageProps) {
 
             }}
           >
-            Buy now
+            {t("buyNow")}
           </button>
 
           {/* Product information */}
@@ -422,11 +424,11 @@ function Productdetail({ product }: ProductPageProps) {
 
             <div className="flex items-center justify-between">
               <span className="text-sm text-[#8E818F]">
-                Delivery
+                {t("delivery")}
               </span>
 
               <span className="text-sm font-medium text-[#3E263F]">
-                Available
+                {t("available")}
               </span>
             </div>
 

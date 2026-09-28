@@ -4,13 +4,15 @@ import { increasequantity } from '../../util/cartfunction';
 import { decreasequantity } from '../../util/cartfunction';
 import { Deleteitem } from '../../util/cartfunction';
 import { useAppContext } from '../../context/appcontext';
+import { useTranslation } from 'react-i18next';
 
 interface proptotal {
   setTotal: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function CartTable({ setTotal }: proptotal) {
-  const { CartItems,setCartItems } = useAppContext();
+  const { t } = useTranslation();
+  const { CartItems, setCartItems } = useAppContext();
   useEffect(() => {
     const cartTotal = CartItems.reduce((total, item) => {
       const price = item.products?.price ?? 0;
@@ -27,31 +29,29 @@ function CartTable({ setTotal }: proptotal) {
         <thead>
           <tr className="border-b border-secondary/40">
             <th className="pb-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              Produit
+              {t("product")}
             </th>
             <th className="pb-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
 
             </th>
             <th className="pb-4 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              color
+              {t("color")}
             </th>
             <th className="pb-4 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              size
+              {t("size")}
             </th>
 
-            <th className="pb-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            </th>
 
             <th className="pb-4 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              Prix
+              {t("price")}
             </th>
 
             <th className="pb-4 text-center text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              Quantité
+              {t("quantity")}
             </th>
 
             <th className="pb-4 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              Total
+              {t("total")}
             </th>
 
             <th className="pb-4 w-10"></th>
@@ -137,7 +137,7 @@ function CartTable({ setTotal }: proptotal) {
                 <button
                   type="button"
                   className='hover:cursor-pointer'
-                  onClick={() => Deleteitem(item.id,setCartItems)}
+                  onClick={() => Deleteitem(item.id, setCartItems)}
                 >
                   <img
                     src={trash}
@@ -177,7 +177,7 @@ function CartTable({ setTotal }: proptotal) {
                     {/* Color */}
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-text-secondary">
-                        Couleur:
+                        {t('color')}:
                       </span>
 
                       <span
@@ -189,7 +189,7 @@ function CartTable({ setTotal }: proptotal) {
                     {/* Size */}
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-text-secondary">
-                        Taille:
+                        {t('size')}:
                       </span>
 
                       <span className="text-sm font-semibold text-secondary">

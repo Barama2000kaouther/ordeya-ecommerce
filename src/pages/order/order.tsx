@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 export default function SucessOrder() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     return (<>
         <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -11,11 +13,12 @@ export default function SucessOrder() {
                     </svg>
                 </div>
                 <h1 className="text-2xl font-bold text-text mb-3">
-                    Commande envoyée avec succès ! </h1>
-                <p className="text-text-secondary mb-8"> Merci pour votre commande. Nous avons bien reçu votre demande et nous vous contacterons prochainement pour confirmer votre commande. </p>
+                    {t('orderSentSuccessfully')} </h1>
+                <p className="text-text-secondary mb-8">
+                    {t('orderConfirmationMessage')} </p>
                 <button onClick={() => navigate("/")}
                     className="w-full rounded-xl bg-secondary px-6 py-3 text-white font-medium hover:opacity-90 transition" >
-                    Retour à l'accueil </button>
+                    {t('backToHome')} </button>
             </div>
         </div>
     </>);
