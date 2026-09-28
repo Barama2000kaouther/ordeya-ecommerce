@@ -20,6 +20,7 @@ function Products({ products }: ProductPageProps) {
       <section className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-5 md:px-2">
         {products.map((product) => (
           <article
+            dir="ltr"
             key={product.id}
             className="
             group relative overflow-hidden
@@ -161,7 +162,7 @@ function Products({ products }: ProductPageProps) {
             `}
               onClick={async (e) => {
                 e.preventDefault();
-                await handleclick(product,product.id, userId, setmessage,setWishlist);
+                await handleclick(product, product.id, userId, setmessage, setWishlist);
               }}
             >
               <img
